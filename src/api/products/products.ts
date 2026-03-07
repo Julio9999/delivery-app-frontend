@@ -4,10 +4,11 @@ import type {
   ProductUpdate,
 } from "../interfaces/product";
 import { plubClient } from "../client/client";
+import type { PaginatedResult, PaginationParams } from "../interfaces/pagination";
 
 export const productsApi = {
-  async getAll(): Promise<Product[]> {
-    return plubClient.get<Product[]>("/products").then((res) => res.data);
+  async getAll(params?: PaginationParams): Promise<PaginatedResult<Product>> {
+    return plubClient.get<PaginatedResult<Product>>("/products", { params }).then((res) => res.data);
   },
 
   async getById(id: string): Promise<Product> {
