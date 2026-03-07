@@ -40,7 +40,6 @@ export function useDataTable<T>(
     fetcher: () => fetcher({ page: pageIndex + 1, pageSize }),
   });
 
-  console.log("useDataTable key", keyString, "result", result, "loading", isLoading, "error", error);
 
   const data = result?.items ?? [];
   const totalPages = result?.totalPages ?? 0;

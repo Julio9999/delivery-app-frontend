@@ -1,6 +1,4 @@
-"use client"
-
-import { type ColumnDef } from "@tanstack/react-table"
+import { getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table"
 import { useDataTable, type PaginatedResult } from "@/hooks/useDataTable"
 import { DataTableBase } from "./data-table-base"
 
@@ -8,13 +6,15 @@ import { DataTableBase } from "./data-table-base"
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     queryKey?: unknown[]
+    enablePagination?: boolean;
     fetcher: (params: { page: number; pageSize: number }) => Promise<PaginatedResult<TData>>
 }
 
 export function DataTable<TData, TValue>({
     columns,
-    fetcher,
     queryKey,
+    enablePagination = true,
+    fetcher,
 }: DataTableProps<TData, TValue>) {
 
     const {
@@ -26,17 +26,24 @@ export function DataTable<TData, TValue>({
         setPageIndex,
     } = useDataTable<TData>(fetcher, { queryKey });
 
+    const table = useReactTable({
+        data,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        manualPagination: enablePagination,
+    });
+
     return (
         <>
             {!error && (
                 <DataTableBase<TData, TValue>
                     columns={columns}
-                    data={data}
-                    enablePagination
+                    enablePagination={enablePagination}
                     totalPages={totalPages}
                     pageIndex={pageIndex}
                     onPageChange={setPageIndex}
                     isLoading={isLoading}
+                    table={table}
                 />
             )
             }

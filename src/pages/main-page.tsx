@@ -25,7 +25,6 @@ const productColumns = defineColumns<Product>([
 
 export const MainPage = () => {
 
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">

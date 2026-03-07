@@ -1,11 +1,6 @@
-"use client"
+"use no memo";
 
-import { type ColumnDef } from "@tanstack/react-table"
-import {
-    flexRender,
-    getCoreRowModel,
-    useReactTable,
-} from "@tanstack/react-table"
+import { type ColumnDef, type Table as TableType, flexRender } from "@tanstack/react-table"
 
 import {
     Table,
@@ -22,33 +17,25 @@ import { TablePagination } from "./table-pagination"
 
 interface DataTableBaseProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
-    data: TData[]
     enablePagination?: boolean
     pageSize?: number;
     pageIndex: number;
     totalPages: number;
     isLoading: boolean;
+    table: TableType<TData>;
     onPageChange: (newIndex: number) => void;
 }
 
 export function DataTableBase<TData, TValue>({
     columns,
-    data,
     enablePagination = false,
     totalPages,
     pageIndex,
     isLoading,
+    table,
     onPageChange
 }: DataTableBaseProps<TData, TValue>) {
     
-
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        manualPagination: enablePagination,
-    });
-
 
     return (
         <div className="relative overflow-hidden rounded-md border">
