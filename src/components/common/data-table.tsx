@@ -25,6 +25,10 @@ interface DataTableProps<TData, TValue> {
     onDataChange?: (payload: { data: TData[]; pageIndex: number; totalPages: number }) => void;
     fetcher: (params: { page: number; pageSize: number }) => Promise<PaginatedResult<TData>>
     actions?: DataTableAction<TData>[];
+    /** optional callback that receives the refetch function returned by useDataTable */
+    refetchCallback?: (refetch: () => void) => void;
+    /** a value that when changed will trigger an automatic refetch */
+    refreshKey?: unknown;
 }
 
 export function DataTable<TData, TValue>({
@@ -34,6 +38,8 @@ export function DataTable<TData, TValue>({
     onDataChange,
     fetcher,
     actions,
+    refetchCallback,
+    refreshKey,
 }: DataTableProps<TData, TValue>) {
 
     const {
@@ -43,6 +49,7 @@ export function DataTable<TData, TValue>({
         pageIndex,
         totalPages,
         setPageIndex,
+        refetch,
     } = useDataTable<TData>(fetcher, { queryKey });
 
     const allColumns = React.useMemo(() => {
@@ -89,6 +96,18 @@ export function DataTable<TData, TValue>({
     useEffect(() => {
         onDataChange?.({ data, pageIndex, totalPages });
     }, [data, onDataChange, pageIndex, totalPages]);
+
+    useEffect(() => {
+        if (refetchCallback) {
+            refetchCallback(refetch);
+        }
+    }, [refetchCallback, refetch]);
+
+    useEffect(() => {
+        if (refreshKey !== undefined) {
+            refetch();
+        }
+    }, [refreshKey, refetch]);
 
     return (
         <>

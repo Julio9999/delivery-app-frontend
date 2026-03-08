@@ -11,11 +11,11 @@ function App() {
     <Routes>
       <Route element={<ProtectedLayout />}>
         <Route path="/products" element={<MainPage />} />
-        <Route path="/products/new" element={<CreateProductPage />} />
-        <Route path="/products/:id/edit" element={<EditProductPage />} />
+        <Route path="/products/create" element={<CreateProductPage />} />
+        <Route path="/products/:id" element={<EditProductPage />} />
         <Route path="/categories" element={<MainCategoriesPage />} />
         <Route path="/categories/new" element={<CreateCategoryPage />} />
-        <Route path="/categories/:id/edit" element={<EditCategoryPage />} />
+        <Route path="/categories/:id" element={<EditCategoryPage />} />
         <Route path="/*" element={<MainPage />} />
       </Route>
 

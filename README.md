@@ -105,11 +105,12 @@ VITE_API_URL=http://localhost:3000
 ### 🧱 Structure
 
 - `src/api/client.ts` — axios instance configured with the API base URL
-- `src/api/products.ts` — helper functions that call `/products` endpoints
-- `src/types.ts` — shared TypeScript interfaces
-- `src/components/Layout.tsx` — common layout with navigation
-- `src/pages/ProductList.tsx` — product list table with edit/delete
-- `src/pages/ProductForm.tsx` — product create/edit form
+- `src/api/products/products.ts` — helper functions that call `/products` endpoints
+- `src/modules/products/schemas/schemas.ts` — product form schema and types
+- `src/modules/products/hooks/use-product-form.ts` — custom hook for create/update logic
+- `src/modules/products/components/product-form.tsx` — reusable form component
+- `src/pages/products/main-products-page.tsx` — product list table with edit/delete (now uses `DeleteModal` and `refreshKey` on `DataTable`)
+- `src/pages/products/create-product.tsx` & `src/pages/products/edit-product.tsx` — pages that wrap the form component
 
 > El código reside en `src/` (el subdirectorio `panel-administrativo/` se eliminó tras la reestructuración).
 Routes are mounted automatically under `/products`.
