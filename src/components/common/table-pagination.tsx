@@ -20,7 +20,7 @@ export function TablePagination({
 }: TablePaginationProps) {
 
   return (
-    <Pagination className="mt-4">
+    <Pagination>
       <PaginationPrevious
         onClick={() => onPageChange(Math.max(pageIndex - 1, 0))}
       />

@@ -1,19 +1,15 @@
 import { Routes, Route } from 'react-router';
-import {
-  CreateProductPage,
-  EditProductPage,
-  LoginPage,
-  MainPage,
-  MainCategoriesPage,
-  CreateCategoryPage,
-  EditCategoryPage,
-} from './pages';
-import Layout from './components/Layout';
+
+import ProtectedLayout from './components/layouts/protected-layout';
+
+import { CreateProductPage, EditProductPage, MainPage } from './pages/products';
+import { LoginPage } from './pages/auth';
+import { MainCategoriesPage, CreateCategoryPage, EditCategoryPage } from './pages/category';
 
 function App() {
   return (
     <Routes>
-      <Route element={<Layout />}> 
+      <Route element={<ProtectedLayout />}>
         <Route path="/products" element={<MainPage />} />
         <Route path="/products/new" element={<CreateProductPage />} />
         <Route path="/products/:id/edit" element={<EditProductPage />} />

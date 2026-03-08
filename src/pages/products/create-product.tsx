@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { productsApi } from '../api/products/products';
-import type { ProductCreate } from '../api/interfaces/product';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import type { ProductCreate } from '@/api/interfaces/product';
+import { productsApi } from '@/api/products/products';
 
 const productSchema = z.object({
     name: z.string().min(1, 'El nombre es obligatorio'),

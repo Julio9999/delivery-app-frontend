@@ -3,11 +3,12 @@ import { useParams, useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { categoriesApi } from '../api/categories/categories';
-import type { CategoryUpdate } from '../api/interfaces/category';
+
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { categoriesApi } from '@/api/categories/categories';
+import type { CategoryUpdate } from '@/api/interfaces/category';
 
 const categorySchema = z.object({
   name: z.string().min(1, 'El nombre es obligatorio'),

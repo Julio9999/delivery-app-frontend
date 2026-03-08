@@ -1,7 +1,7 @@
+import { categoriesApi } from '@/api/categories/categories';
+import type { Category } from '@/api/interfaces/category';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { categoriesApi } from '../api/categories/categories';
-import type { Category } from '../api/interfaces/category';
 
 export const MainCategoriesPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
