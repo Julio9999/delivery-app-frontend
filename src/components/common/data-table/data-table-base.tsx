@@ -11,8 +11,8 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Spinner } from "@/components/ui/spinner"
+import { TablePagination } from "../table-pagination";
 
-import { TablePagination } from "./table-pagination"
 
 
 interface DataTableBaseProps<TData, TValue> {

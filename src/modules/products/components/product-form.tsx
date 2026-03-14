@@ -1,3 +1,4 @@
+"use no memo";
 import React from 'react';
 import { Card, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

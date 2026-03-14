@@ -2,8 +2,8 @@ import { categoriesApi } from '@/api/categories/categories';
 import type { Category } from '@/api/interfaces/category';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { DataTable } from '@/components/common/data-table';
-import { defineColumns } from '@/components/common/data-table-utils';
+import { DataTable } from '@/components/common/data-table/data-table';
+import { defineColumns } from '@/components/common/data-table/data-table-utils';
 import { EditIcon, TrashIcon } from 'lucide-react';
 import { DeleteModal } from '@/components/common/delete-modal';
 import { showSuccessToast } from '@/lib/utils';
@@ -38,8 +38,8 @@ export const MainCategoriesPage = () => {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
+    <div className="flex flex-col gap-2">
+      <div className="flex justify-between">
         <h1 className="text-2xl font-bold">Categorías</h1>
         <Button onClick={() => navigate('/categories/create')}>Crear categoría</Button>
       </div>

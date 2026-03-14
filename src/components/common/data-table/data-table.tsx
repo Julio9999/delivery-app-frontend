@@ -1,7 +1,6 @@
 import React, { useEffect } from "react"
 import { getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table"
 import { useDataTable, type PaginatedResult } from "@/hooks/useDataTable"
-import { DataTableBase } from "./data-table-base"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -9,6 +8,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontalIcon } from "lucide-react"
+import { DataTableBase } from "./data-table-base"
 
 
 interface DataTableAction<TData> {

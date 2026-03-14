@@ -80,10 +80,11 @@ export const useProductForm = (options?: UseProductFormOptions) => {
   } = form;
 
   useFetch<Product>({
-    key: "product",
+    key: `product-${options?.productId ?? ""}`,
     enabled: !!options?.productId,
     fetcher: () => productsApi.getById(options!.productId!),
     onSuccess: (prod) => {
+      console.log({ prod });
       form.reset({
         name: prod.name,
         description: prod.description,
