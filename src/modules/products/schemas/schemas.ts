@@ -8,6 +8,13 @@ export const productSchema = z.object({
     .number()
     .int("El stock debe ser un número entero")
     .min(0, "El stock debe ser mayor o igual a 0"),
+  category: z
+    .object({
+      id: z.string(),
+      label: z.string(),
+    })
+    .partial()
+    .optional(),
 });
 
 

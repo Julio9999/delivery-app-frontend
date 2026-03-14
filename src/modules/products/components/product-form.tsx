@@ -4,32 +4,35 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import type { UseFormHandleSubmit, UseFormRegister, FieldErrors } from 'react-hook-form';
-import type { ProductForm } from '../schemas/schemas';
+import { useWatch } from 'react-hook-form';
+import { useProductForm } from '../hooks/use-product-form';
+import { SelectAsyncPaginated } from '@/components/common/select-async-paginate/select-async-paginated';
+import { searchApi } from '@/api/search/search';
 
 interface ProductFormProps {
-    register: UseFormRegister<ProductForm>;
-    handleSubmit: UseFormHandleSubmit<ProductForm>;
-    onSubmit: (data: ProductForm) => void;
-    goBack: () => void;
-    loading?: boolean;
-    errors: FieldErrors<ProductForm>;
-    errorMessage?: string | null;
+    productId?: string;
     title?: string;
     submitLabel?: string;
 }
 
 export const ProductFormComponent: React.FC<ProductFormProps> = ({
-    register,
-    handleSubmit,
-    onSubmit,
-    goBack,
-    loading = false,
-    errors,
-    errorMessage = null,
+    productId,
     title = 'Producto',
     submitLabel = 'Enviar',
 }) => {
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        control,
+        onSubmit,
+        goBack,
+        loading,
+        errors,
+        errorMessage,
+    } = useProductForm({ productId });
+
+    const category = useWatch({ control, name: 'category' });
     return (
         <div className="mx-auto">
             <Card className="w-200 mx-auto px-4">
@@ -80,6 +83,23 @@ export const ProductFormComponent: React.FC<ProductFormProps> = ({
                                 {errors.stock.message}
                             </p>
                         )}
+                    </Field>
+
+                    <Field>
+                        <FieldLabel>Categoría (opcional)</FieldLabel>
+                        <SelectAsyncPaginated
+                            fetcher={searchApi.searchCategories}
+                            value={category?.id ?? null}
+                            selectedLabel={category?.label ?? null}
+                            onValueChange={(id, label) => {
+                                setValue(
+                                    'category',
+                                    id && label ? { id, label } : undefined,
+                                );
+                            }}
+                            placeholder="Selecciona una categoría"
+                            searchPlaceholder="Buscar categoría..."
+                        />
                     </Field>
 
                     {errorMessage && (

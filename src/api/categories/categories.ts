@@ -1,9 +1,10 @@
 import type { Category, CategoryCreate, CategoryUpdate } from "../interfaces/category";
 import { plubClient } from "../client/client";
+import type { PaginatedResult, PaginationParams } from "../interfaces/pagination";
 
 export const categoriesApi = {
-  async getAll(): Promise<Category[]> {
-    return plubClient.get<Category[]>("/categories").then((res) => res.data);
+  async getAll(params?: PaginationParams): Promise<PaginatedResult<Category>> {
+    return plubClient.get<PaginatedResult<Category>>("/categories", {params}).then((res) => res.data);
   },
 
   async getById(id: string): Promise<Category> {

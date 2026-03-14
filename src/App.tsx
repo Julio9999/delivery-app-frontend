@@ -13,9 +13,11 @@ function App() {
         <Route path="/products" element={<MainPage />} />
         <Route path="/products/create" element={<CreateProductPage />} />
         <Route path="/products/:id" element={<EditProductPage />} />
+
         <Route path="/categories" element={<MainCategoriesPage />} />
-        <Route path="/categories/new" element={<CreateCategoryPage />} />
+        <Route path="/categories/create" element={<CreateCategoryPage />} />
         <Route path="/categories/:id" element={<EditCategoryPage />} />
+
         <Route path="/*" element={<MainPage />} />
       </Route>
 

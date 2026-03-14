@@ -31,6 +31,7 @@ export const useProductForm = (options?: UseProductFormOptions) => {
       description: "",
       price: 0,
       stock: 0,
+      category: undefined,
     },
   });
 
@@ -43,6 +44,7 @@ export const useProductForm = (options?: UseProductFormOptions) => {
         description: data.description,
         price: data.price,
         stock: data.stock,
+        categoryId: data.category?.id || undefined,
       };
 
       if (options?.productId) {
@@ -71,6 +73,9 @@ export const useProductForm = (options?: UseProductFormOptions) => {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
+    control,
     formState: { errors },
   } = form;
 
@@ -84,6 +89,9 @@ export const useProductForm = (options?: UseProductFormOptions) => {
         description: prod.description,
         price: prod.price,
         stock: prod.stock,
+        category: prod.categoryId
+          ? { id: prod.categoryId, label: "" }
+          : undefined,
       });
     },
     onError: () => {
@@ -97,6 +105,9 @@ export const useProductForm = (options?: UseProductFormOptions) => {
   return {
     register,
     handleSubmit,
+    setValue,
+    watch,
+    control,
     onSubmit,
     goBack,
     errors,

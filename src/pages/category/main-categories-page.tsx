@@ -1,78 +1,80 @@
 import { categoriesApi } from '@/api/categories/categories';
 import type { Category } from '@/api/interfaces/category';
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router';
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
+import { DataTable } from '@/components/common/data-table';
+import { defineColumns } from '@/components/common/data-table-utils';
+import { EditIcon, TrashIcon } from 'lucide-react';
+import { DeleteModal } from '@/components/common/delete-modal';
+import { showSuccessToast } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+
+const categoryColumns = defineColumns<Category>([
+  { accessorKey: 'name', header: 'Nombre' },
+  { accessorKey: 'parentId', header: 'Padre' },
+]);
 
 export const MainCategoriesPage = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  
+  const navigate = useNavigate();
+  const [rowToDelete, setRowToDelete] = useState<Category | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      try {
-        const data = await categoriesApi.getAll();
-        setCategories(data);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    load();
-  }, []);
+  const handleConfirmDelete = async () => {
+    if (!rowToDelete) return;
+    setDeleting(true);
+    try {
+      await categoriesApi.remove(rowToDelete.id);
+      showSuccessToast('Categoría eliminada');
+      setRefreshKey((k) => k + 1);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDeleting(false);
+      setRowToDelete(null);
+    }
+  };
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Categorías</h1>
-        <Link
-          to="/categories/new"
-          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-        >
-          Nueva categoría
-        </Link>
+        <Button onClick={() => navigate('/categories/create')}>Crear categoría</Button>
       </div>
 
-      {loading && <p>Cargando categorías...</p>}
-      {error && <p className="text-red-600">Error: {error}</p>}
+      <div className="border-blue-500 flex-1 h-full">
+        <DataTable<Category, Category[]>
+          columns={categoryColumns}
+          fetcher={categoriesApi.getAll}
+          refreshKey={refreshKey}
+          actions={[
+            {
+              label: 'Editar',
+              icon: EditIcon,
+              onClick: (row) => navigate(`/categories/${row.id}`),
+            },
+            {
+              label: 'Eliminar',
+              icon: TrashIcon,
+              variant: 'destructive',
+              onClick: (row) => setRowToDelete(row),
+            },
+          ]}
+        />
+      </div>
 
-      {!loading && !error && (
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Nombre
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Padre
-              </th>
-              <th className="px-6 py-3" />
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {categories.map((cat) => (
-              <tr key={cat.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {cat.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {cat.parentId || '-'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Link
-                    to={`/categories/${cat.id}/edit`}
-                    className="text-blue-600 hover:text-blue-900"
-                  >
-                    Editar
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {rowToDelete && (
+        <DeleteModal
+          open={!!rowToDelete}
+          onOpenChange={(o) => !o && setRowToDelete(null)}
+          trigger={null}
+          title="Eliminar categoría"
+          description={`¿Deseas eliminar "${rowToDelete.name}"? Esta acción no se puede deshacer.`}
+          onConfirm={handleConfirmDelete}
+          loading={deleting}
+        />
       )}
     </div>
   );
