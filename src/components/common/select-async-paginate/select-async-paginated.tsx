@@ -100,7 +100,7 @@ export const SelectAsyncPaginated = ({
 					</div>
 
 					<div
-						className="max-h-60 overflow-y-auto"
+						className="max-h-60 overflow-y-auto table-scroll-primary"
 						onScroll={handleListScroll}
 					>
 						{isLoading ? (

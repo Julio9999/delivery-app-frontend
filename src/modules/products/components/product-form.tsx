@@ -110,7 +110,7 @@ export const ProductFormComponent: React.FC<ProductFormProps> = ({
                     <Button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 disabled:opacity-50 mt-4"
+                        className="w-full  text-white py-2 rounded-md  disabled:opacity-50 mt-4"
                     >
                         {loading ? 'Guardando...' : submitLabel}
                     </Button>

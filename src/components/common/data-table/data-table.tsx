@@ -2,13 +2,14 @@ import React, { useEffect } from "react"
 import { getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table"
 import { useDataTable, type PaginatedResult } from "@/hooks/useDataTable"
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontalIcon } from "lucide-react"
 import { DataTableBase } from "./data-table-base"
+import { Button } from "@/components/ui/button"
 
 
 interface DataTableAction<TData> {
@@ -25,10 +26,9 @@ interface DataTableProps<TData, TValue> {
     onDataChange?: (payload: { data: TData[]; pageIndex: number; totalPages: number }) => void;
     fetcher: (params: { page: number; pageSize: number }) => Promise<PaginatedResult<TData>>
     actions?: DataTableAction<TData>[];
-    /** optional callback that receives the refetch function returned by useDataTable */
     refetchCallback?: (refetch: () => void) => void;
-    /** a value that when changed will trigger an automatic refetch */
     refreshKey?: unknown;
+    maxBodyHeight?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -40,6 +40,7 @@ export function DataTable<TData, TValue>({
     actions,
     refetchCallback,
     refreshKey,
+    maxBodyHeight,
 }: DataTableProps<TData, TValue>) {
 
     const {
@@ -57,13 +58,16 @@ export function DataTable<TData, TValue>({
 
         const actionCol: ColumnDef<TData, TValue> = {
             id: 'actions',
-            header: 'Acciones',
+            header: '',
+            size: 10,
             cell: ({ row }) => {
                 const rowData = row.original;
                 return (
                     <DropdownMenu>
-                        <DropdownMenuTrigger className="cursor-pointer flex justify-center w-full">
-                            <MoreHorizontalIcon className="size-4" />
+                        <DropdownMenuTrigger className="cursor-pointer flex justify-center" asChild>
+                            <Button variant="ghost" className="p-0 m-0 w-5 h-5">
+                                <MoreHorizontalIcon />
+                            </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
                             {actions.map((act, idx) => (
@@ -73,7 +77,7 @@ export function DataTable<TData, TValue>({
                                     variant={act.variant}
                                     className="cursor-pointer"
                                 >
-                                    <act.icon className="size-4" />
+                                    <act.icon />
                                     {act.label}
                                 </DropdownMenuItem>
                             ))}
@@ -83,7 +87,7 @@ export function DataTable<TData, TValue>({
             },
         };
 
-        return [...columns, actionCol];
+        return [actionCol, ...columns];
     }, [columns, actions]);
 
     const table = useReactTable({
@@ -120,6 +124,7 @@ export function DataTable<TData, TValue>({
                     onPageChange={setPageIndex}
                     isLoading={isLoading}
                     table={table}
+                    maxBodyHeight={maxBodyHeight}
                 />
             )
             }

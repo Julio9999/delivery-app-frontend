@@ -79,7 +79,7 @@ export const CreateCategoryPage = () => {
         <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 disabled:opacity-50"
+          className="w-full  text-white py-2 rounded-md disabled:opacity-50"
         >
           {loading ? 'Creando...' : 'Crear categoría'}
         </Button>

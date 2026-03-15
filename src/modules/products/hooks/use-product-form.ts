@@ -84,14 +84,14 @@ export const useProductForm = (options?: UseProductFormOptions) => {
     enabled: !!options?.productId,
     fetcher: () => productsApi.getById(options!.productId!),
     onSuccess: (prod) => {
-      console.log({ prod });
+      console.log(prod)
       form.reset({
         name: prod.name,
         description: prod.description,
         price: prod.price,
         stock: prod.stock,
-        category: prod.categoryId
-          ? { id: prod.categoryId, label: "" }
+        category: prod.category?.id
+          ? { id: prod.category.id, label: prod.category.name }
           : undefined,
       });
     },

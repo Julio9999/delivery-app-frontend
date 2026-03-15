@@ -1,11 +1,13 @@
+import type { Category } from "./category";
+
 export interface Product {
   id: string;
   name: string;
   description: string;
   price: number;
   stock: number;
-  categoryId?: string;
+  category?: Category;
 }
 
-export type ProductCreate = Omit<Product, 'id'>;
+export type ProductCreate = Omit<Product, 'id' | 'category'> & { categoryId?: string };
 export type ProductUpdate = Partial<ProductCreate>;

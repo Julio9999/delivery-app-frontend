@@ -1,7 +1,7 @@
-import { categoriesApi } from '@/api/categories/categories';
-import type { Category } from '@/api/interfaces/category';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { categoriesApi } from '@/api/categories/categories';
+import type { Category } from '@/api/interfaces/category';
 import { DataTable } from '@/components/common/data-table/data-table';
 import { defineColumns } from '@/components/common/data-table/data-table-utils';
 import { EditIcon, TrashIcon } from 'lucide-react';
@@ -45,7 +45,7 @@ export const MainCategoriesPage = () => {
       </div>
 
       <div className="border-blue-500 flex-1 h-full">
-        <DataTable<Category, Category[]>
+        <DataTable
           columns={categoryColumns}
           fetcher={categoriesApi.getAll}
           refreshKey={refreshKey}

@@ -20,7 +20,7 @@ export function useDataTable<T>(
   fetcher: (params: { page: number; pageSize: number }) => Promise<PaginatedResult<T>>,
   {
     initialPage = 0,
-    initialPageSize = 10,
+    initialPageSize = 20,
     queryKey = [],
     enabled = true,
   }: UseDataTableOptions = {},

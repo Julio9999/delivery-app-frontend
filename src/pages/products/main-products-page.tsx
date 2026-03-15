@@ -25,6 +25,11 @@ const productColumns = defineColumns<Product>([
   {
     accessorKey: "stock",
     header: "Stock",
+  },
+  {
+    accessorKey: "category.name",
+    header: "Categoría",
+    cell: ({ row }) => row.original.category?.name || '-',
   }
 ]);
 
@@ -52,13 +57,13 @@ export const MainPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex h-full min-h-0 flex-col gap-2 overflow-hidden">
       <div className='flex justify-between'>
         <h1 className="text-2xl font-bold">Productos</h1>
         <Button onClick={() => navigate('/products/create')}>Crear producto</Button>
       </div>
-      <div className=" border-blue-500  flex-1 h-full">
-        <DataTable<Product, Product[]>
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <DataTable
           columns={productColumns}
           fetcher={productsApi.getAll}
           refreshKey={refreshKey}

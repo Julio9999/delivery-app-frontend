@@ -2,25 +2,10 @@ import { Link, Outlet } from 'react-router';
 import { authClient } from '@/lib/auth-client';
 
 export default function ProtectedLayout() {
-  // const location = useLocation();
-  // const { data: session, isPending } = authClient.useSession();
-
-  // if (isPending) {
-  //   return (
-  //     <div className="h-screen w-full flex items-center justify-center">
-  //       <p className="text-sm text-muted-foreground">Verificando sesion...</p>
-  //     </div>
-  //   );
-  // }
-
-  // if (!session) {
-  //   return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-  // }
-
   return (
-    <div className="h-screen  w-full grid grid-rows-12">
-      <div className='row-span-1 bg-gray-800 text-white'>
-        <nav className="bg-gray-800 text-white  flex items-center justify-between xl:container mx-auto h-full">
+    <div className="h-screen w-full grid grid-rows-12 overflow-hidden">
+      <div className='row-span-1 bg-primary text-white'>
+        <nav className=" text-white  flex items-center justify-between xl:container mx-auto h-full">
           <div className="text-lg font-bold">Panel de Administración</div>
           <ul className="flex gap-2">
             <li><Link to="/" className="hover:underline">Inicio</Link></li>
@@ -40,8 +25,8 @@ export default function ProtectedLayout() {
           </ul>
         </nav>
       </div>
-      <div className='row-span-11 w-full h-full'>
-        <main className='row-span-11 w-full p-1  h-full xl:container mx-auto grid  '>
+      <div className='row-span-11 w-full h-full min-h-0 overflow-hidden'>
+        <main className='row-span-11 w-full p-1 h-full min-h-0 xl:container mx-auto grid overflow-hidden'>
           <Outlet />
         </main>
       </div>
