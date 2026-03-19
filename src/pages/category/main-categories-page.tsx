@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { categoriesApi } from '@/api/categories/categories';
 import type { Category } from '@/api/interfaces/category';
@@ -9,17 +9,27 @@ import { DeleteModal } from '@/components/common/delete-modal';
 import { showSuccessToast } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
-const categoryColumns = defineColumns<Category>([
-  { accessorKey: 'name', header: 'Nombre' },
-  { accessorKey: 'parentId', header: 'Padre' },
-]);
-
 export const MainCategoriesPage = () => {
-  
   const navigate = useNavigate();
   const [rowToDelete, setRowToDelete] = useState<Category | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  const categoryColumns = useMemo(
+    () =>
+      defineColumns<Category>([
+        { accessorKey: 'name', header: 'Nombre' },
+        {
+          accessorKey: 'parentName',
+          header: 'Padre',
+          cell: ({ getValue }) => {
+            const parentName = getValue() as string | undefined;
+            return parentName ?? '';
+          },
+        },
+      ]),
+    [],
+  );
 
 
   const handleConfirmDelete = async () => {

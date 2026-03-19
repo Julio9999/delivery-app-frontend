@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 
 import { useSelectAsyncPaginated, type SelectAsyncPaginatedFetcher } from './use-select-async-paginated';
 
-
 export interface SelectAsyncPaginatedProps {
 	fetcher: SelectAsyncPaginatedFetcher;
 	onValueChange: (id: string | null, label: string | null) => void;
@@ -22,6 +21,8 @@ export interface SelectAsyncPaginatedProps {
 	placeholder?: string;
 	searchPlaceholder?: string;
 	selectedLabel?: string | null;
+	allowClear?: boolean;
+	clearLabel?: string;
 	disabled?: boolean;
 	className?: string;
 	listClassName?: string;
@@ -41,6 +42,8 @@ export const SelectAsyncPaginated = ({
 	placeholder = 'Selecciona una opción',
 	searchPlaceholder = 'Buscar...',
 	selectedLabel = null,
+	allowClear = false,
+	clearLabel = 'Sin padre',
 	disabled = false,
 	className,
 	listClassName,
@@ -62,6 +65,7 @@ export const SelectAsyncPaginated = ({
 		selectedLabelToShow,
 		triggerRef,
 		triggerWidth,
+		selectedValue,
 	} = useSelectAsyncPaginated({
 		fetcher,
 		onValueChange,
@@ -115,12 +119,15 @@ export const SelectAsyncPaginated = ({
 							</div>
 						) : null}
 
+						{!isLoading && allowClear && selectedValue != null ? (
+							<DropdownMenuItem onSelect={() => handleSelect(null)}>
+								{clearLabel}
+							</DropdownMenuItem>
+						) : null}
+
 						{!isLoading &&
 							items.map((item) => (
-								<DropdownMenuItem
-									key={item.id}
-									onSelect={() => handleSelect(item)}
-								>
+								<DropdownMenuItem key={item.id} onSelect={() => handleSelect(item)}>
 									{item.label}
 								</DropdownMenuItem>
 							))}
