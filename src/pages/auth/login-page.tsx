@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router';
+import axios from 'axios';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,7 +12,8 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { authClient } from '@/lib/auth-client';
+import { authApi } from '@/api/auth/auth';
+import { useAuthSession } from '@/hooks/use-auth-session';
 
 type LocationState = {
     from?: string;
@@ -20,16 +22,17 @@ type LocationState = {
 export const LoginPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { data: session, isPending } = authClient.useSession();
+    const { isAuthenticated, isLoading, refreshSession } = useAuthSession();
 
-    const [email, setEmail] = useState('');
+    const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const from = (location.state as LocationState | null)?.from ?? '/';
+    const redirectTo = from === '/login' ? '/' : from;
 
-    if (!isPending && session) {
-        return <Navigate to={from} replace />;
+    if (!isLoading && isAuthenticated) {
+        return <Navigate to={redirectTo} replace />;
     }
 
     const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -37,20 +40,20 @@ export const LoginPage = () => {
         setIsSubmitting(true);
 
         try {
-            const result = await authClient.signIn.email({
-                email,
+            await authApi.login({
+                name,
                 password,
             });
-
-            if (result.error) {
-                toast.error(result.error.message || 'No se pudo iniciar sesion');
-                return;
-            }
+            await refreshSession();
 
             toast.success('Bienvenido');
-            navigate(from, { replace: true });
-        } catch {
-            toast.error('Error inesperado al iniciar sesion');
+            navigate(redirectTo, { replace: true });
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response?.status === 401) {
+                toast.error('Usuario o contrasena invalidos');
+            } else {
+                toast.error('Error inesperado al iniciar sesion');
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -67,14 +70,14 @@ export const LoginPage = () => {
                 <CardContent>
                     <form className="space-y-4" onSubmit={onSubmit}>
                         <div className="space-y-2">
-                            <Label htmlFor="email">Correo</Label>
+                            <Label htmlFor="name">Usuario</Label>
                             <Input
-                                id="email"
-                                type="email"
-                                value={email}
-                                onChange={(event) => setEmail(event.target.value)}
-                                placeholder="admin@ejemplo.com"
-                                autoComplete="email"
+                                id="name"
+                                type="text"
+                                value={name}
+                                onChange={(event) => setName(event.target.value)}
+                                placeholder="admin"
+                                autoComplete="username"
                                 required
                             />
                         </div>

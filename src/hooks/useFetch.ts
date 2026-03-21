@@ -30,17 +30,22 @@ export const useFetch = <T>({
   });
 
   const isMounted = useRef<boolean>(true);
-  const previousKey = useRef<string | null>(null);
-
   useEffect(() => {
     isMounted.current = true;
 
-    if (key === previousKey.current) return;
-
-    previousKey.current = key;
+    if (!key || !enabled) {
+      if (isMounted.current) {
+        setState((prev) => ({ ...prev, isLoading: false }));
+      }
+      return () => {
+        isMounted.current = false;
+      };
+    }
 
     const fetchData = async () => {
-      if (!key || !enabled) return;
+      if (isMounted.current) {
+        setState((prev) => ({ ...prev, isLoading: true }));
+      }
 
       onLoading?.(true);
 
@@ -68,7 +73,7 @@ export const useFetch = <T>({
     return () => {
       isMounted.current = false;
     };
-  }, [key]);
+  }, [key, enabled]);
 
   return {
     data: state.data,
