@@ -13,6 +13,6 @@ ReactDOM.createRoot(root).render(
       <BrowserRouter>
         <App />
       </BrowserRouter>
-      <Toaster />
+      <Toaster  />
   </React.StrictMode>,
 );

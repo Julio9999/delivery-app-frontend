@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { authApi } from '@/api/auth/auth';
 import { useAuthSession } from '@/hooks/use-auth-session';
+import { showErrorToast, showSuccessToast } from '@/lib/utils';
 
 type LocationState = {
     from?: string;
@@ -46,11 +47,11 @@ export const LoginPage = () => {
             });
             await refreshSession();
 
-            toast.success('Bienvenido');
+            showSuccessToast('Bienvenido');
             navigate(redirectTo, { replace: true });
         } catch (error) {
             if (axios.isAxiosError(error) && error.response?.status === 401) {
-                toast.error('Usuario o contrasena invalidos');
+                showErrorToast('Usuario o contrasena invalidos');
             } else {
                 toast.error('Error inesperado al iniciar sesion');
             }
