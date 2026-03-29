@@ -25,6 +25,19 @@ export const productsApi = {
       .then((res) => res.data);
   },
 
+  async uploadImage(id: string, file: File): Promise<Product> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return plubClient
+      .post<Product>(`/products/${id}/image`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then((res) => res.data);
+  },
+
   async updateStock(id: string, quantity: number): Promise<Product> {
     return plubClient
       .patch<Product>(`/products/${id}/stock`, { quantity })

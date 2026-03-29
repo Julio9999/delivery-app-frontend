@@ -17,6 +17,8 @@ export const useProductForm = (options?: UseProductFormOptions) => {
   const [submitting, setSubmitting] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
 
   const router = useNavigate()
 
@@ -48,10 +50,26 @@ export const useProductForm = (options?: UseProductFormOptions) => {
       };
 
       if (options?.productId) {
-        await productsApi.update(options.productId, payload);
+        const updated = await productsApi.update(options.productId, payload);
+        let finalProduct = updated;
+
+        if (imageFile) {
+          finalProduct = await productsApi.uploadImage(options.productId, imageFile);
+          setImageFile(null);
+        }
+
+        setCurrentImageUrl(finalProduct.imageUrl || null);
         showSuccessToast("Producto actualizado con éxito");
       } else {
-        await productsApi.create(payload);
+        const created = await productsApi.create(payload);
+        let finalProduct = created;
+
+        if (imageFile) {
+          finalProduct = await productsApi.uploadImage(created.id, imageFile);
+        }
+
+        setCurrentImageUrl(finalProduct.imageUrl || null);
+        setImageFile(null);
         form.reset();
         showSuccessToast("Producto creado con éxito");
       }
@@ -84,7 +102,6 @@ export const useProductForm = (options?: UseProductFormOptions) => {
     enabled: !!options?.productId,
     fetcher: () => productsApi.getById(options!.productId!),
     onSuccess: (prod) => {
-      console.log(prod)
       form.reset({
         name: prod.name,
         description: prod.description,
@@ -94,6 +111,8 @@ export const useProductForm = (options?: UseProductFormOptions) => {
           ? { id: prod.category.id, label: prod.category.name }
           : undefined,
       });
+      setCurrentImageUrl(prod.imageUrl || null);
+      setImageFile(null);
     },
     onError: () => {
       setErrorMessage("Error al cargar el producto");
@@ -115,5 +134,8 @@ export const useProductForm = (options?: UseProductFormOptions) => {
     loading,
     fetching,
     errorMessage,
+    imageFile,
+    setImageFile,
+    currentImageUrl,
   };
 };

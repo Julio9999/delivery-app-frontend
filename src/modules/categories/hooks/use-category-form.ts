@@ -18,6 +18,8 @@ export const useCategoryForm = (options?: UseCategoryFormOptions) => {
 	const [fetching, setFetching] = useState(false);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const [parentLabel, setParentLabel] = useState<string | null>(null);
+	const [imageFile, setImageFile] = useState<File | null>(null);
+	const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
 
 	const navigate = useNavigate();
 
@@ -42,14 +44,30 @@ export const useCategoryForm = (options?: UseCategoryFormOptions) => {
 					name: data.name,
 					parentId: data.parentId || undefined,
 				};
-				await categoriesApi.update(options.categoryId, payload);
+				const updated = await categoriesApi.update(options.categoryId, payload);
+				let finalCategory = updated;
+
+				if (imageFile) {
+					finalCategory = await categoriesApi.uploadImage(options.categoryId, imageFile);
+					setImageFile(null);
+				}
+
+				setCurrentImageUrl(finalCategory.imageUrl || null);
 				showSuccessToast('Categoría actualizada con éxito');
 			} else {
 				const payload: CategoryCreate = {
 					name: data.name,
 					parentId: data.parentId || undefined,
 				};
-				await categoriesApi.create(payload);
+				const created = await categoriesApi.create(payload);
+				let finalCategory = created;
+
+				if (imageFile) {
+					finalCategory = await categoriesApi.uploadImage(created.id, imageFile);
+				}
+
+				setCurrentImageUrl(finalCategory.imageUrl || null);
+				setImageFile(null);
 				form.reset();
 				setParentLabel(null);
 				showSuccessToast('Categoría creada con éxito');
@@ -92,6 +110,8 @@ export const useCategoryForm = (options?: UseCategoryFormOptions) => {
 				name: cat.name,
 				parentId: cat.parentId || undefined,
 			});
+			setCurrentImageUrl(cat.imageUrl || null);
+			setImageFile(null);
 			if (cat.parentId) {
 				categoriesApi.getById(cat.parentId).then((parent) => {
 					setParentLabel(parent.name);
@@ -120,5 +140,8 @@ export const useCategoryForm = (options?: UseCategoryFormOptions) => {
 		errorMessage,
 		parentLabel,
 		setParentLabel,
+		imageFile,
+		setImageFile,
+		currentImageUrl,
 	};
 };

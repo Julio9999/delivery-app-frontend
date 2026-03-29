@@ -1,5 +1,5 @@
 "use no memo";
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Card, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
@@ -32,9 +32,27 @@ export const CategoryFormComponent: React.FC<CategoryFormProps> = ({
         errorMessage,
         parentLabel,
         setParentLabel,
+        imageFile,
+        setImageFile,
+        currentImageUrl,
     } = useCategoryForm({ categoryId });
 
     const parentId = watch('parentId');
+    const previewImageUrl = useMemo(() => {
+        if (imageFile) {
+            return URL.createObjectURL(imageFile);
+        }
+
+        return currentImageUrl;
+    }, [imageFile, currentImageUrl]);
+
+    React.useEffect(() => {
+        return () => {
+            if (previewImageUrl && imageFile) {
+                URL.revokeObjectURL(previewImageUrl);
+            }
+        };
+    }, [previewImageUrl, imageFile]);
 
     const fetchCategories = useCallback(
         async (params: { page?: number; pageSize?: number; search?: string }) => {
@@ -64,6 +82,25 @@ export const CategoryFormComponent: React.FC<CategoryFormProps> = ({
                                 {errors.name.message}
                             </p>
                         )}
+                    </Field>
+
+                    <Field>
+                        <FieldLabel>Imagen (opcional)</FieldLabel>
+                        <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(event) => {
+                                const selected = event.target.files?.[0] ?? null;
+                                setImageFile(selected);
+                            }}
+                        />
+                        {previewImageUrl ? (
+                            <img
+                                src={previewImageUrl}
+                                alt="Vista previa de la categoría"
+                                className="mt-2 h-28 w-28 rounded-md object-cover border"
+                            />
+                        ) : null}
                     </Field>
 
                     <Field>

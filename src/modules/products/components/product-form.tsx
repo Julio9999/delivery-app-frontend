@@ -1,5 +1,5 @@
 "use no memo";
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
@@ -31,9 +31,28 @@ export const ProductFormComponent: React.FC<ProductFormProps> = ({
         loading,
         errors,
         errorMessage,
+        imageFile,
+        setImageFile,
+        currentImageUrl,
     } = useProductForm({ productId });
 
     const category = useWatch({ control, name: 'category' });
+    const previewImageUrl = useMemo(() => {
+        if (imageFile) {
+            return URL.createObjectURL(imageFile);
+        }
+
+        return currentImageUrl;
+    }, [imageFile, currentImageUrl]);
+
+    React.useEffect(() => {
+        return () => {
+            if (previewImageUrl && imageFile) {
+                URL.revokeObjectURL(previewImageUrl);
+            }
+        };
+    }, [previewImageUrl, imageFile]);
+
     return (
         <div className="mx-auto">
             <Card className="w-200 mx-auto px-4">
@@ -84,6 +103,25 @@ export const ProductFormComponent: React.FC<ProductFormProps> = ({
                                 {errors.stock.message}
                             </p>
                         )}
+                    </Field>
+
+                    <Field>
+                        <FieldLabel>Imagen (opcional)</FieldLabel>
+                        <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(event) => {
+                                const selected = event.target.files?.[0] ?? null;
+                                setImageFile(selected);
+                            }}
+                        />
+                        {previewImageUrl ? (
+                            <img
+                                src={previewImageUrl}
+                                alt="Vista previa del producto"
+                                className="mt-2 h-28 w-28 rounded-md object-cover border"
+                            />
+                        ) : null}
                     </Field>
 
                     <Field>

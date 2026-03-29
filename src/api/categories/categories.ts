@@ -21,6 +21,19 @@ export const categoriesApi = {
       .then((res) => res.data);
   },
 
+  async uploadImage(id: string, file: File): Promise<Category> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return plubClient
+      .post<Category>(`/categories/${id}/image`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then((res) => res.data);
+  },
+
   async remove(id: string): Promise<void> {
     return plubClient.delete(`/categories/${id}`).then(() => undefined);
   },
