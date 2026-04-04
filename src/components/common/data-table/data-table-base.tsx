@@ -40,7 +40,7 @@ export function DataTableBase<TData, TValue>({
 }: DataTableBaseProps<TData, TValue>) {
 
     return (
-        <div className="relative rounded-md border h-full flex flex-col  gap-1">
+        <div className="relative  border h-full flex flex-col gap-1">
             {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-white/75">
                     <Spinner className="size-6" />
@@ -51,7 +51,7 @@ export function DataTableBase<TData, TValue>({
                     <Table
                         width={table.getTotalSize()}
                         className="table-fixed block overflow-y-auto overflow-x-hidden table-scroll-primary"
-                        style={{ maxHeight: maxBodyHeight }}
+                        style={{ maxHeight: maxBodyHeight, marginRight: '-1px', paddingRight: '1px' }}
                     >
                         <TableHeader className="sticky top-0 z-20 bg-background">
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -63,7 +63,7 @@ export function DataTableBase<TData, TValue>({
                                             style={{ width: header.getSize() }}
                                             className={cn(
                                                 "sticky top-0 z-30 bg-background shadow-[0_1px_0_var(--color-border)]",
-                                                { "border-l": index !== 0 }
+                                                {"border-l": index !== 0, "border-r": index === headerGroup.headers.length - 1 }
                                             )}
                                         >
                                             {header.isPlaceholder
@@ -91,7 +91,10 @@ export function DataTableBase<TData, TValue>({
                                         <TableCell
                                             key={cell.id}
                                             style={{ width: cell.column.getSize() }}
-                                            className={cn("table-cell border-b h-12", { "border-l": index !== 0})}
+                                            className={cn(
+                                                "table-cell border-b h-12",
+                                                { "border-l": index !== 0, "border-r": index === row.getVisibleCells().length - 1 }
+                                            )}
                                         >
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </TableCell>
