@@ -6,8 +6,12 @@ import type {
 import { plubClient } from "../client/client";
 import type { PaginatedResult, PaginationParams } from "../interfaces/pagination";
 
+export interface ProductListParams extends PaginationParams {
+  isOnOffer?: boolean;
+}
+
 export const productsApi = {
-  async getAll(params?: PaginationParams): Promise<PaginatedResult<Product>> {
+  async getAll(params?: ProductListParams): Promise<PaginatedResult<Product>> {
     return plubClient.get<PaginatedResult<Product>>("/products", { params }).then((res) => res.data);
   },
 

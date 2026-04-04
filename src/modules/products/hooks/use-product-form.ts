@@ -32,6 +32,9 @@ export const useProductForm = (options?: UseProductFormOptions) => {
       name: "",
       description: "",
       price: 0,
+      hasOffer: false,
+      offerPrice: undefined,
+      offerDurationHours: undefined,
       stock: 0,
       category: undefined,
     },
@@ -47,7 +50,25 @@ export const useProductForm = (options?: UseProductFormOptions) => {
         price: data.price,
         stock: data.stock,
         categoryId: data.category?.id || undefined,
+        offerPrice: null,
+        offerStartsAt: null,
+        offerEndsAt: null,
       };
+
+      if (
+        data.hasOffer &&
+        data.offerPrice !== undefined &&
+        data.offerDurationHours !== undefined
+      ) {
+        const offerStartsAt = new Date();
+        const offerEndsAt = new Date(
+          offerStartsAt.getTime() + data.offerDurationHours * 60 * 60 * 1000,
+        );
+
+        payload.offerPrice = data.offerPrice;
+        payload.offerStartsAt = offerStartsAt.toISOString();
+        payload.offerEndsAt = offerEndsAt.toISOString();
+      }
 
       if (options?.productId) {
         const updated = await productsApi.update(options.productId, payload);
@@ -102,10 +123,24 @@ export const useProductForm = (options?: UseProductFormOptions) => {
     enabled: !!options?.productId,
     fetcher: () => productsApi.getById(options!.productId!),
     onSuccess: (prod) => {
+      const now = new Date();
+      const offerEndsAt = prod.offerEndsAt ? new Date(prod.offerEndsAt) : null;
+      const hasActiveOffer =
+        typeof prod.offerPrice === 'number' &&
+        !!offerEndsAt &&
+        offerEndsAt > now;
+      const offerDurationHours =
+        hasActiveOffer && offerEndsAt
+          ? Math.max(1, Math.ceil((offerEndsAt.getTime() - now.getTime()) / (60 * 60 * 1000)))
+          : undefined;
+
       form.reset({
         name: prod.name,
         description: prod.description,
         price: prod.price,
+        hasOffer: hasActiveOffer,
+        offerPrice: hasActiveOffer ? prod.offerPrice ?? undefined : undefined,
+        offerDurationHours,
         stock: prod.stock,
         category: prod.category?.id
           ? { id: prod.category.id, label: prod.category.name }

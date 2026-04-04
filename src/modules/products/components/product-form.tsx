@@ -37,6 +37,7 @@ export const ProductFormComponent: React.FC<ProductFormProps> = ({
     } = useProductForm({ productId });
 
     const category = useWatch({ control, name: 'category' });
+    const hasOffer = useWatch({ control, name: 'hasOffer' });
     const previewImageUrl = useMemo(() => {
         if (imageFile) {
             return URL.createObjectURL(imageFile);
@@ -54,8 +55,8 @@ export const ProductFormComponent: React.FC<ProductFormProps> = ({
     }, [previewImageUrl, imageFile]);
 
     return (
-        <div className="mx-auto">
-            <Card className="w-200 mx-auto px-4">
+        <div className="mx-auto overflow-auto w-full ">
+            <Card className="w-200 mx-auto px-4 border-red-500 border-2">
                 <CardHeader className="text-2xl font-bold mb-4 flex">
                     <Button onClick={goBack}>Volver</Button>
                     {title}
@@ -91,6 +92,49 @@ export const ProductFormComponent: React.FC<ProductFormProps> = ({
                             </p>
                         )}
                     </Field>
+
+                    <Field>
+                        <label className="flex items-center gap-2 text-sm font-medium">
+                            <input type="checkbox" {...register('hasOffer')} />
+                            Marcar como oferta temporal
+                        </label>
+                    </Field>
+
+                    {hasOffer ? (
+                        <>
+                            <Field>
+                                <FieldLabel>Precio en oferta</FieldLabel>
+                                <Input
+                                    type="number"
+                                    {...register('offerPrice', {
+                                        setValueAs: (value) =>
+                                            value === '' ? undefined : Number(value),
+                                    })}
+                                />
+                                {errors.offerPrice && (
+                                    <p className="text-red-500 text-sm mt-1">
+                                        {errors.offerPrice.message}
+                                    </p>
+                                )}
+                            </Field>
+
+                            <Field>
+                                <FieldLabel>Duración de la oferta (horas)</FieldLabel>
+                                <Input
+                                    type="number"
+                                    {...register('offerDurationHours', {
+                                        setValueAs: (value) =>
+                                            value === '' ? undefined : Number(value),
+                                    })}
+                                />
+                                {errors.offerDurationHours && (
+                                    <p className="text-red-500 text-sm mt-1">
+                                        {errors.offerDurationHours.message}
+                                    </p>
+                                )}
+                            </Field>
+                        </>
+                    ) : null}
 
                     <Field>
                         <FieldLabel>Stock</FieldLabel>

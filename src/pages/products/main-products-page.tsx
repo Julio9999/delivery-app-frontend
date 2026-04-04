@@ -20,7 +20,17 @@ const productColumns = defineColumns<Product>([
   },
   {
     accessorKey: "price",
-    header: "Precio",
+    header: "Precio base",
+  },
+  {
+    accessorKey: "currentPrice",
+    header: "Precio vigente",
+    cell: ({ row }) => row.original.currentPrice ?? row.original.price,
+  },
+  {
+    accessorKey: "isOnOffer",
+    header: "Oferta",
+    cell: ({ row }) => row.original.isOnOffer ? 'Activa' : '-',
   },
   {
     accessorKey: "stock",
@@ -39,6 +49,7 @@ export const MainPage = () => {
   const [rowToDelete, setRowToDelete] = useState<Product | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [offerFilter, setOfferFilter] = useState<'all' | 'active'>('all');
 
 
   const handleConfirmDelete = async () => {
@@ -57,15 +68,31 @@ export const MainPage = () => {
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-2 overflow-hidden">
+    <div className="flex h-full min-h-0 flex-col gap-2 overflow-hidden xl:container mx-auto">
       <div className='flex justify-between'>
         <h1 className="text-2xl font-bold">Productos</h1>
-        <Button onClick={() => navigate('/products/create')}>Crear producto</Button>
+        <div className="flex items-center gap-2">
+          <select
+            className="border rounded-md px-2 py-1 text-sm"
+            value={offerFilter}
+            onChange={(event) => setOfferFilter(event.target.value as 'all' | 'active')}
+          >
+            <option value="all">Todos</option>
+            <option value="active">Solo en oferta</option>
+          </select>
+          <Button onClick={() => navigate('/products/create')}>Crear producto</Button>
+        </div>
       </div>
       <div className="flex-1 min-h-0 overflow-hidden">
         <DataTable
           columns={productColumns}
-          fetcher={productsApi.getAll}
+          fetcher={(params) =>
+            productsApi.getAll({
+              ...params,
+              isOnOffer: offerFilter === 'active' ? true : undefined,
+            })
+          }
+          queryKey={[offerFilter]}
           refreshKey={refreshKey}
           actions={[
             {

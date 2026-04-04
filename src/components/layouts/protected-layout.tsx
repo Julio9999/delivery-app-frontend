@@ -51,7 +51,7 @@ export default function ProtectedLayout() {
         </nav>
       </div>
       <div className='row-span-11 w-full h-full min-h-0 overflow-hidden'>
-        <main className='row-span-11 w-full p-1 h-full min-h-0 xl:container mx-auto grid overflow-hidden'>
+        <main className='row-span-11 w-full p-1 h-full min-h-0  mx-auto grid overflow-hidden'>
           <Outlet />
         </main>
       </div>
