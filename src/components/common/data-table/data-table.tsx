@@ -59,12 +59,14 @@ export function DataTable<TData, TValue>({
         const actionCol: ColumnDef<TData, TValue> = {
             id: 'actions',
             header: '',
-            size: 10,
+            size: 26,
+            minSize: 26,
+            maxSize: 26,
             cell: ({ row }) => {
                 const rowData = row.original;
                 return (
                     <DropdownMenu>
-                        <DropdownMenuTrigger className="cursor-pointer flex justify-center" asChild>
+                        <DropdownMenuTrigger className="cursor-pointer flex justify-center items-center" asChild>
                             <Button variant="ghost" className="p-0 m-0 w-5 h-5">
                                 <MoreHorizontalIcon />
                             </Button>

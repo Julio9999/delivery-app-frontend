@@ -68,7 +68,7 @@ export const MainPage = () => {
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-2 overflow-hidden xl:container mx-auto">
+    <div className="flex h-full min-h-0 flex-col gap-2 overflow-hidden ">
       <div className='flex justify-between'>
         <h1 className="text-2xl font-bold">Productos</h1>
         <div className="flex items-center gap-2">
