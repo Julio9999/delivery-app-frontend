@@ -53,6 +53,8 @@ export function DataTable<TData, TValue>({
         refetch,
     } = useDataTable<TData>(fetcher, { queryKey });
 
+    const [columnSizing, setColumnSizing] = React.useState<Record<string, number>>({});
+
     const allColumns = React.useMemo(() => {
         if (!actions || actions.length === 0) return columns;
 
@@ -62,6 +64,7 @@ export function DataTable<TData, TValue>({
             size: 26,
             minSize: 26,
             maxSize: 26,
+            enableResizing: false,
             cell: ({ row }) => {
                 const rowData = row.original;
                 return (
@@ -95,6 +98,12 @@ export function DataTable<TData, TValue>({
     const table = useReactTable({
         data,
         columns: allColumns,
+        state: { columnSizing },
+        onColumnSizingChange: setColumnSizing,
+        columnResizeMode: 'onChange',
+        defaultColumn: {
+            enableResizing: true,
+        },
         getCoreRowModel: getCoreRowModel(),
         manualPagination: enablePagination,
     });

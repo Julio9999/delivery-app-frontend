@@ -13,6 +13,7 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { TablePagination } from "../table-pagination";
 import { cn } from "@/lib/utils";
+import { resizeCursor } from "./resizeCursor";
 
 
 
@@ -62,7 +63,7 @@ export function DataTableBase<TData, TValue>({
                                             key={header.id}
                                             style={{ width: header.getSize() }}
                                             className={cn(
-                                                "sticky top-0 z-30 bg-background shadow-[0_1px_0_var(--color-border)]",
+                                                "group sticky top-0 z-30 bg-background shadow-[0_1px_0_var(--color-border)]",
                                                 {"border-l": index !== 0, "border-r": index === headerGroup.headers.length - 1 }
                                             )}
                                         >
@@ -72,6 +73,27 @@ export function DataTableBase<TData, TValue>({
                                                     header.column.columnDef.header,
                                                     header.getContext()
                                                 )}
+                                            {header.column.getCanResize() && (
+                                                <div
+                                                    {...{
+                                                        onMouseDown: header.getResizeHandler(),
+                                                        onTouchStart: header.getResizeHandler(),
+                                                    }}
+                                                    style={{
+                                                        cursor: resizeCursor,
+                                                    }}
+                                                    className="absolute right-0 top-0 h-full w-6 touch-none transition-colors duration-150 group-hover:bg-primary/10"
+                                                >
+                                                    <div
+                                                        className={cn(
+                                                            "absolute right-1.5 top-1/2 h-10 -translate-y-1/2 rounded-full bg-primary transition-all duration-150",
+                                                            header.column.getIsResizing?.()
+                                                                ? 'opacity-100 w-1.5'
+                                                                : 'opacity-0 group-hover:opacity-100 w-0.5',
+                                                        )}
+                                                    />
+                                                </div>
+                                            )}
                                         </TableHead>
                                     )
                                 })}
