@@ -25,12 +25,12 @@ export default function Sidebar({ items, isExpanded, currentPath, onToggle, onLo
         isExpanded ? 'w-64' : 'w-16',
       )}
     >
-      <div className={cn('flex items-center gap-2 border-b border-white/10 p-4 transition-all duration-500', isExpanded ? 'justify-start' : 'justify-center')}>
+      <div className={cn('flex items-center gap-2 border-b border-white/10 px-4 py-2 transition-all duration-500 h-16', isExpanded ? 'justify-start' : 'justify-center')}>
         <button
           type="button"
           onClick={onToggle}
           title={isExpanded ? 'Colapsar menú' : 'Expandir menú'}
-          className="rounded-md bg-white/10 p-2 text-white transition hover:bg-white/20"
+          className="rounded-md bg-white/10 p-2 text-white transition hover:bg-white/20 cursor-pointer"
         >
           <MenuIcon className="size-6" />
           <span className="sr-only">Toggle sidebar</span>

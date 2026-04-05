@@ -77,13 +77,13 @@ export default function ProtectedLayout() {
         onPortalTitleMount={() => setHasPortalTitle(true)}
         onPortalTitleUnmount={() => setHasPortalTitle(false)}
       >
-        <main className="min-h-full overflow-auto bg-background">
-          <div id="layout-page-title" className="mb-4 bg-primary px-4 py-3 text-white shadow-sm">
+        <main className="h-full flex flex-col bg-background overflow-hidden">
+          <div id="layout-page-title" className=" bg-primary px-4 py-4 text-white shadow-sm h-16">
             {!hasPortalTitle && (
               <h1 className="text-xl font-semibold tracking-tight">{pageTitle}</h1>
             )}
           </div>
-          <div className="px-4 py-4">
+          <div className="flex-1 overflow-auto px-4 py-4">
             <Outlet />
           </div>
         </main>
