@@ -70,9 +70,7 @@ export const MainPage = () => {
 
   return (
     <>
-      <PageTitlePortal>
-        <h1 className="text-xl font-semibold tracking-tight">Productos</h1>
-      </PageTitlePortal>
+      <PageTitlePortal title="Productos" />
       <div className="flex h-full min-h-0 flex-col gap-2 overflow-hidden ">
         <div className='flex justify-end items-center gap-2'>
           <select

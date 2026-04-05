@@ -1,47 +1,14 @@
 import { createPortal } from 'react-dom';
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-
-type PageTitlePortalContextValue = {
-  onMount: () => void;
-  onUnmount: () => void;
-};
-
-const PageTitlePortalContext = createContext<PageTitlePortalContextValue | null>(null);
-
-export function PageTitlePortalProvider({
-  children,
-  onPortalTitleMount,
-  onPortalTitleUnmount,
-}: {
-  children: ReactNode;
-  onPortalTitleMount: () => void;
-  onPortalTitleUnmount: () => void;
-}) {
-  return (
-    <PageTitlePortalContext.Provider
-      value={{ onMount: onPortalTitleMount, onUnmount: onPortalTitleUnmount }}
-    >
-      {children}
-    </PageTitlePortalContext.Provider>
-  );
-}
+import { useEffect, useState } from 'react';
 
 export function PageTitlePortal({
-  children,
+  title,
   containerId = 'layout-page-title',
 }: {
-  children: ReactNode;
+  title: string;
   containerId?: string;
 }) {
-  const context = useContext(PageTitlePortalContext);
   const [container, setContainer] = useState<HTMLElement | null>(null);
-
-  useEffect(() => {
-    context?.onMount();
-    return () => {
-      context?.onUnmount();
-    };
-  }, [context]);
 
   useEffect(() => {
     setContainer(document.getElementById(containerId));
@@ -51,5 +18,8 @@ export function PageTitlePortal({
     return null;
   }
 
-  return createPortal(children, container);
+  return createPortal(
+    <h1 className="text-xl font-semibold tracking-tight">{title}</h1>,
+    container,
+  );
 }

@@ -58,7 +58,7 @@ export default function Sidebar({ items, isExpanded, currentPath, onToggle, onLo
           type="button"
           onClick={onLogout}
           className={cn(
-            'flex w-full items-center justify-center gap-2 rounded-xl bg-white/5 px-3 py-3 text-sm font-medium text-slate-100 transition hover:bg-white/10',
+            'flex w-full items-center justify-center gap-2 rounded-xl bg-white/5 px-3 py-3 text-sm font-medium text-slate-100 transition hover:bg-white/10 cursor-pointer',
             !isExpanded && 'justify-center',
           )}
           title="Cerrar sesión"

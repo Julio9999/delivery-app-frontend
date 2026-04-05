@@ -50,9 +50,7 @@ export const MainCategoriesPage = () => {
 
   return (
     <>
-      <PageTitlePortal>
-        <h1 className="text-xl font-semibold tracking-tight">Categorías</h1>
-      </PageTitlePortal>
+      <PageTitlePortal title="Categorías" />
       <div className="flex flex-col gap-2">
         <div className="flex justify-end">
           <Button onClick={() => navigate('/categories/create')}>Crear categoría</Button>

@@ -1,12 +1,12 @@
-import { Navigate, Outlet, useLocation, useNavigate } from 'react-router';
 import { useMemo, useState } from 'react';
-import { HomeIcon, LayersIcon, BoxIcon } from 'lucide-react';
-import { toast } from 'sonner';
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router';
 import axios from 'axios';
+import { HomeIcon, LayersIcon, BoxIcon } from 'lucide-react';
+
 import { authApi } from '@/api/auth/auth';
 import { useAuthSession } from '@/hooks/use-auth-session';
 import Sidebar, { type SidebarItem } from './Sidebar';
-import { PageTitlePortalProvider } from './page-title-portal';
+import { showErrorToast } from '@/lib/utils';
 
 export default function ProtectedLayout() {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -33,27 +33,9 @@ export default function ProtectedLayout() {
         return;
       }
 
-      toast.error('No se pudo cerrar sesion');
+      showErrorToast('No se pudo cerrar sesion');
     }
   };
-
-  const [hasPortalTitle, setHasPortalTitle] = useState(false);
-
-  const pageTitle = useMemo(() => {
-    if (location.pathname.startsWith('/products')) {
-      if (location.pathname.endsWith('/create')) return 'Crear producto';
-      if (/^\/products\/[\w-]+$/.test(location.pathname)) return 'Editar producto';
-      return 'Productos';
-    }
-
-    if (location.pathname.startsWith('/categories')) {
-      if (location.pathname.endsWith('/create')) return 'Crear categoría';
-      if (/^\/categories\/[\w-]+$/.test(location.pathname)) return 'Editar categoría';
-      return 'Categorías';
-    }
-
-    return 'Inicio';
-  }, [location.pathname]);
 
   if (isLoading) {
     return <div className="h-screen w-full grid place-items-center">Cargando...</div>;
@@ -73,21 +55,12 @@ export default function ProtectedLayout() {
         onLogout={handleLogout}
       />
 
-      <PageTitlePortalProvider
-        onPortalTitleMount={() => setHasPortalTitle(true)}
-        onPortalTitleUnmount={() => setHasPortalTitle(false)}
-      >
-        <main className="h-full flex flex-col bg-background overflow-hidden">
-          <div id="layout-page-title" className=" bg-primary px-4 py-4 text-white shadow-sm h-16">
-            {!hasPortalTitle && (
-              <h1 className="text-xl font-semibold tracking-tight">{pageTitle}</h1>
-            )}
-          </div>
-          <div className="flex-1 overflow-auto px-4 py-4">
-            <Outlet />
-          </div>
-        </main>
-      </PageTitlePortalProvider>
+      <main className="h-full flex flex-col bg-background overflow-hidden">
+        <div id="layout-page-title" className="bg-primary px-4 py-4 text-white shadow-sm h-16" />
+        <div className="flex-1 overflow-auto px-4 py-4">
+          <Outlet />
+        </div>
+      </main>
     </div>
   );
 }
