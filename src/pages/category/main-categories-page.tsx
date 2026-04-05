@@ -8,6 +8,7 @@ import { EditIcon, TrashIcon } from 'lucide-react';
 import { DeleteModal } from '@/components/common/delete-modal';
 import { showSuccessToast } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { PageTitlePortal } from '@/components/layouts/page-title-portal';
 
 export const MainCategoriesPage = () => {
   const navigate = useNavigate();
@@ -48,31 +49,35 @@ export const MainCategoriesPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex justify-between">
-        <h1 className="text-2xl font-bold">Categorías</h1>
-        <Button onClick={() => navigate('/categories/create')}>Crear categoría</Button>
-      </div>
+    <>
+      <PageTitlePortal>
+        <h1 className="text-xl font-semibold tracking-tight">Categorías</h1>
+      </PageTitlePortal>
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-end">
+          <Button onClick={() => navigate('/categories/create')}>Crear categoría</Button>
+        </div>
 
-      <div className="border-blue-500 flex-1 h-full">
-        <DataTable
-          columns={categoryColumns}
-          fetcher={categoriesApi.getAll}
-          refreshKey={refreshKey}
-          actions={[
-            {
-              label: 'Editar',
-              icon: EditIcon,
-              onClick: (row) => navigate(`/categories/${row.id}`),
-            },
-            {
-              label: 'Eliminar',
-              icon: TrashIcon,
-              variant: 'destructive',
-              onClick: (row) => setRowToDelete(row),
-            },
-          ]}
-        />
+        <div className="border-blue-500 flex-1 h-full">
+          <DataTable
+            columns={categoryColumns}
+            fetcher={categoriesApi.getAll}
+            refreshKey={refreshKey}
+            actions={[
+              {
+                label: 'Editar',
+                icon: EditIcon,
+                onClick: (row) => navigate(`/categories/${row.id}`),
+              },
+              {
+                label: 'Eliminar',
+                icon: TrashIcon,
+                variant: 'destructive',
+                onClick: (row) => setRowToDelete(row),
+              },
+            ]}
+          />
+        </div>
       </div>
 
       {rowToDelete && (
@@ -86,6 +91,6 @@ export const MainCategoriesPage = () => {
           loading={deleting}
         />
       )}
-    </div>
+    </>
   );
 };

@@ -8,6 +8,7 @@ import { EditIcon, TrashIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DeleteModal } from '@/components/common/delete-modal';
 import { showSuccessToast } from '@/lib/utils';
+import { PageTitlePortal } from '@/components/layouts/page-title-portal';
 
 const productColumns = defineColumns<Product>([
   {
@@ -68,10 +69,12 @@ export const MainPage = () => {
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-2 overflow-hidden ">
-      <div className='flex justify-between'>
-        <h1 className="text-2xl font-bold">Productos</h1>
-        <div className="flex items-center gap-2">
+    <>
+      <PageTitlePortal>
+        <h1 className="text-xl font-semibold tracking-tight">Productos</h1>
+      </PageTitlePortal>
+      <div className="flex h-full min-h-0 flex-col gap-2 overflow-hidden ">
+        <div className='flex justify-end items-center gap-2'>
           <select
             className="border rounded-md px-2 py-1 text-sm"
             value={offerFilter}
@@ -82,32 +85,32 @@ export const MainPage = () => {
           </select>
           <Button onClick={() => navigate('/products/create')}>Crear producto</Button>
         </div>
-      </div>
-      <div className="flex-1 min-h-0 overflow-hidden">
-        <DataTable
-          columns={productColumns}
-          fetcher={(params) =>
-            productsApi.getAll({
-              ...params,
-              isOnOffer: offerFilter === 'active' ? true : undefined,
-            })
-          }
-          queryKey={[offerFilter]}
-          refreshKey={refreshKey}
-          actions={[
-            {
-              label: "Editar",
-              icon: EditIcon,
-              onClick: (row) => navigate(`/products/${row.id}`),
-            },
-            {
-              label: "Eliminar",
-              icon: TrashIcon,
-              variant: "destructive",
-              onClick: (row) => setRowToDelete(row),
-            },
-          ]}
-        />
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <DataTable
+            columns={productColumns}
+            fetcher={(params) =>
+              productsApi.getAll({
+                ...params,
+                isOnOffer: offerFilter === 'active' ? true : undefined,
+              })
+            }
+            queryKey={[offerFilter]}
+            refreshKey={refreshKey}
+            actions={[
+              {
+                label: "Editar",
+                icon: EditIcon,
+                onClick: (row) => navigate(`/products/${row.id}`),
+              },
+              {
+                label: "Eliminar",
+                icon: TrashIcon,
+                variant: "destructive",
+                onClick: (row) => setRowToDelete(row),
+              },
+            ]}
+          />
+        </div>
       </div>
 
       {rowToDelete && (
@@ -121,6 +124,6 @@ export const MainPage = () => {
           loading={deleting}
         />
       )}
-    </div>
+    </>
   );
 };
