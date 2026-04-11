@@ -1,6 +1,6 @@
 import React, { useEffect } from "react"
 import { getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table"
-import { useDataTable, type PaginatedResult } from "@/hooks/useDataTable"
+import { useDataTable, type DataTableBaseParams, type DataTableFilterValues, type PaginatedResult } from "@/components/common/data-table/useDataTable"
 import {
     DropdownMenu,
     DropdownMenuTrigger,
@@ -10,6 +10,11 @@ import {
 import { MoreHorizontalIcon } from "lucide-react"
 import { DataTableBase } from "./data-table-base"
 import { Button } from "@/components/ui/button"
+import {
+    SideFiltersPanel,
+    type SideFilterDefinition,
+    type SideFilterValues,
+} from "@/components/common/side-filters/side-filters-panel"
 
 
 interface DataTableAction<TData> {
@@ -19,16 +24,21 @@ interface DataTableAction<TData> {
     variant?: "default" | "destructive";
 }
 
+export type DataTableSideFilter = SideFilterDefinition;
+
+type FetcherParams = DataTableBaseParams & DataTableFilterValues;
+
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     queryKey?: unknown[]
     enablePagination?: boolean;
     onDataChange?: (payload: { data: TData[]; pageIndex: number; totalPages: number }) => void;
-    fetcher: (params: { page: number; pageSize: number }) => Promise<PaginatedResult<TData>>
+    fetcher: (params: FetcherParams) => Promise<PaginatedResult<TData>>
     actions?: DataTableAction<TData>[];
     refetchCallback?: (refetch: () => void) => void;
     refreshKey?: unknown;
     maxBodyHeight?: string;
+    sideFilters?: SideFilterDefinition[];
 }
 
 export function DataTable<TData, TValue>({
@@ -41,8 +51,8 @@ export function DataTable<TData, TValue>({
     refetchCallback,
     refreshKey,
     maxBodyHeight,
+    sideFilters = [],
 }: DataTableProps<TData, TValue>) {
-
     const {
         data,
         isLoading,
@@ -50,8 +60,13 @@ export function DataTable<TData, TValue>({
         pageIndex,
         totalPages,
         setPageIndex,
+        applyFilters,
+        clearFilters,
         refetch,
-    } = useDataTable<TData>(fetcher, { queryKey });
+    } = useDataTable<TData, SideFilterValues>(
+        fetcher,
+        { queryKey },
+    );
 
     const [columnSizing, setColumnSizing] = React.useState<Record<string, number>>({});
 
@@ -125,20 +140,30 @@ export function DataTable<TData, TValue>({
     }, [refreshKey, refetch]);
 
     return (
-        <>
-            {!error && (
-                <DataTableBase<TData, TValue>
-                    columns={allColumns}
-                    enablePagination={enablePagination}
-                    totalPages={totalPages}
-                    pageIndex={pageIndex}
-                    onPageChange={setPageIndex}
-                    isLoading={isLoading}
-                    table={table}
-                    maxBodyHeight={maxBodyHeight}
+        <div className="flex h-full min-h-0 gap-2">
+            {sideFilters.length > 0 && (
+                <SideFiltersPanel
+                    filters={sideFilters}
+                    onApply={applyFilters}
+                    onClear={clearFilters}
                 />
-            )
-            }
-        </>
+            )}
+
+            <div className="min-h-0 min-w-0 flex-1">
+                {!error && (
+                    <DataTableBase<TData, TValue>
+                        columns={allColumns}
+                        enablePagination={enablePagination}
+                        totalPages={totalPages}
+                        pageIndex={pageIndex}
+                        onPageChange={setPageIndex}
+                        isLoading={isLoading}
+                        table={table}
+                        maxBodyHeight={maxBodyHeight}
+                    />
+                )
+                }
+            </div>
+        </div>
     )
 }

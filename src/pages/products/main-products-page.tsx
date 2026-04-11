@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { productsApi } from '../../api/products/products';
+import { categoriesApi } from '@/api/categories/categories';
 import type { Product } from '../../api/interfaces/product';
 import { DataTable } from '@/components/common/data-table/data-table';
 import { defineColumns } from '@/components/common/data-table/data-table-utils';
@@ -9,6 +10,19 @@ import { Button } from '@/components/ui/button';
 import { DeleteModal } from '@/components/common/delete-modal';
 import { showSuccessToast } from '@/lib/utils';
 import { PageTitlePortal } from '@/components/layouts/page-title-portal';
+import type { SelectAsyncPaginatedFetcher } from '@/components/common/select-async-paginate/use-select-async-paginated';
+
+const fetchCategoriesAsSelectOptions: SelectAsyncPaginatedFetcher = async (params) => {
+  const result = await categoriesApi.getAll(params);
+
+  return {
+    ...result,
+    items: result.items.map((category) => ({
+      id: category.id,
+      label: category.name,
+    })),
+  };
+};
 
 const productColumns = defineColumns<Product>([
   {
@@ -50,7 +64,6 @@ export const MainPage = () => {
   const [rowToDelete, setRowToDelete] = useState<Product | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [offerFilter, setOfferFilter] = useState<'all' | 'active'>('all');
 
 
   const handleConfirmDelete = async () => {
@@ -73,27 +86,28 @@ export const MainPage = () => {
       <PageTitlePortal title="Productos" />
       <div className="flex h-full min-h-0 flex-col gap-2 overflow-hidden ">
         <div className='flex justify-end items-center gap-2'>
-          <select
-            className="border rounded-md px-2 py-1 text-sm"
-            value={offerFilter}
-            onChange={(event) => setOfferFilter(event.target.value as 'all' | 'active')}
-          >
-            <option value="all">Todos</option>
-            <option value="active">Solo en oferta</option>
-          </select>
           <Button onClick={() => navigate('/products/create')}>Crear producto</Button>
         </div>
         <div className="flex-1 min-h-0 overflow-hidden">
           <DataTable
             columns={productColumns}
-            fetcher={(params) =>
-              productsApi.getAll({
-                ...params,
-                isOnOffer: offerFilter === 'active' ? true : undefined,
-              })
-            }
-            queryKey={[offerFilter]}
+            fetcher={productsApi.getAll}
             refreshKey={refreshKey}
+            sideFilters={[
+              {
+                label: 'En oferta',
+                key: 'isOnOffer',
+                type: 'boolean',
+              },
+              {
+                label: 'Categoría',
+                key: 'categoryId',
+                type: 'async-select',
+                fetcher: fetchCategoriesAsSelectOptions,
+                placeholder: 'Selecciona una categoría',
+                searchPlaceholder: 'Buscar categoría...',
+              }
+            ]}
             actions={[
               {
                 label: "Editar",

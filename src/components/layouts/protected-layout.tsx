@@ -56,7 +56,7 @@ export default function ProtectedLayout() {
       />
 
       <main className="h-full flex flex-col bg-background overflow-hidden">
-        <div id="layout-page-title" className="bg-primary px-4 py-4 text-white shadow-sm h-16" />
+        <div id="layout-page-title" className="bg-primary px-4 py-4 text-white shadow-sm h-16 border-white/10" />
         <div className="flex-1 overflow-auto px-4 py-4">
           <Outlet />
         </div>
