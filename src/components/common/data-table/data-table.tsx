@@ -1,6 +1,7 @@
 import React, { useEffect } from "react"
 import { getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table"
 import { useDataTable, type DataTableBaseParams, type DataTableFilterValues, type PaginatedResult } from "@/components/common/data-table/useDataTable"
+import type { DataTableFilters, DataTableStoreApi } from "@/stores/data-table-store"
 import {
     DropdownMenu,
     DropdownMenuTrigger,
@@ -29,6 +30,7 @@ export type DataTableSideFilter = SideFilterDefinition;
 type FetcherParams = DataTableBaseParams & DataTableFilterValues;
 
 interface DataTableProps<TData, TValue> {
+    store: DataTableStoreApi<TData, DataTableFilters>;
     columns: ColumnDef<TData, TValue>[]
     queryKey?: unknown[]
     enablePagination?: boolean;
@@ -39,9 +41,11 @@ interface DataTableProps<TData, TValue> {
     refreshKey?: unknown;
     maxBodyHeight?: string;
     sideFilters?: SideFilterDefinition[];
+    showSideFiltersToggle?: boolean;
 }
 
 export function DataTable<TData, TValue>({
+    store,
     columns,
     queryKey,
     enablePagination = true,
@@ -52,6 +56,7 @@ export function DataTable<TData, TValue>({
     refreshKey,
     maxBodyHeight,
     sideFilters = [],
+    showSideFiltersToggle = true,
 }: DataTableProps<TData, TValue>) {
     const {
         data,
@@ -60,12 +65,20 @@ export function DataTable<TData, TValue>({
         pageIndex,
         totalPages,
         setPageIndex,
+        appliedFilters,
         applyFilters,
         clearFilters,
+        draftValues,
+        draftLabels,
+        setDraftValue,
+        setDraftLabel,
+        hasAppliedFilters,
         refetch,
-    } = useDataTable<TData, SideFilterValues>(
+        sideFiltersOpen,
+        setSideFiltersOpen,
+    } = useDataTable<TData, DataTableFilterValues>(
         fetcher,
-        { queryKey },
+        { store, queryKey },
     );
 
     const [columnSizing, setColumnSizing] = React.useState<Record<string, number>>({});
@@ -146,6 +159,15 @@ export function DataTable<TData, TValue>({
                     filters={sideFilters}
                     onApply={applyFilters}
                     onClear={clearFilters}
+                    open={sideFiltersOpen}
+                    onOpenChange={setSideFiltersOpen}
+                    appliedValues={appliedFilters as SideFilterValues}
+                    draftValues={draftValues}
+                    draftLabels={draftLabels}
+                    onDraftValueChange={setDraftValue}
+                    onDraftLabelChange={setDraftLabel}
+                    showToggleButton={showSideFiltersToggle}
+                    hasAppliedFilters={hasAppliedFilters}
                 />
             )}
 

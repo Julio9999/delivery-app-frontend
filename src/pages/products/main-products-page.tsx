@@ -1,126 +1,49 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import { productsApi } from '../../api/products/products';
-import { categoriesApi } from '@/api/categories/categories';
-import type { Product } from '../../api/interfaces/product';
 import { DataTable } from '@/components/common/data-table/data-table';
-import { defineColumns } from '@/components/common/data-table/data-table-utils';
-import { EditIcon, TrashIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DeleteModal } from '@/components/common/delete-modal';
-import { showSuccessToast } from '@/lib/utils';
 import { PageTitlePortal } from '@/components/layouts/page-title-portal';
-import type { SelectAsyncPaginatedFetcher } from '@/components/common/select-async-paginate/use-select-async-paginated';
-
-const fetchCategoriesAsSelectOptions: SelectAsyncPaginatedFetcher = async (params) => {
-  const result = await categoriesApi.getAll(params);
-
-  return {
-    ...result,
-    items: result.items.map((category) => ({
-      id: category.id,
-      label: category.name,
-    })),
-  };
-};
-
-const productColumns = defineColumns<Product>([
-  {
-    accessorKey: "name",
-    header: "Nombre",
-  },
-  {
-    accessorKey: "description",
-    header: "Descripción",
-  },
-  {
-    accessorKey: "price",
-    header: "Precio base",
-  },
-  {
-    accessorKey: "currentPrice",
-    header: "Precio vigente",
-    cell: ({ row }) => row.original.currentPrice ?? row.original.price,
-  },
-  {
-    accessorKey: "isOnOffer",
-    header: "Oferta",
-    cell: ({ row }) => row.original.isOnOffer ? 'Activa' : '-',
-  },
-  {
-    accessorKey: "stock",
-    header: "Stock",
-  },
-  {
-    accessorKey: "category.name",
-    header: "Categoría",
-    cell: ({ row }) => row.original.category?.name || '-',
-  }
-]);
+import { SideFiltersToggleButton } from '@/components/common/side-filters/side-filters-toggle-button';
+import { useProductsMainPage } from '@/modules/products/hooks/use-products-main-page';
 
 export const MainPage = () => {
-  const navigate = useNavigate();
-
-  const [rowToDelete, setRowToDelete] = useState<Product | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
-
-
-  const handleConfirmDelete = async () => {
-    if (!rowToDelete) return;
-    setDeleting(true);
-    try {
-      await productsApi.remove(rowToDelete.id);
-      showSuccessToast('Producto eliminado');
-      setRefreshKey((k) => k + 1);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setDeleting(false);
-      setRowToDelete(null);
-    }
-  };
+  const {
+    productsDataTableStore,
+    sideFiltersOpen,
+    toggleSideFiltersOpen,
+    hasAppliedFilters,
+    rowToDelete,
+    deleting,
+    refreshKey,
+    goToCreateProduct,
+    handleDeleteModalOpenChange,
+    handleConfirmDelete,
+    productColumns,
+    sideFilters,
+    tableActions,
+    fetchProducts,
+  } = useProductsMainPage();
 
   return (
     <>
       <PageTitlePortal title="Productos" />
       <div className="flex h-full min-h-0 flex-col gap-2 overflow-hidden ">
-        <div className='flex justify-end items-center gap-2'>
-          <Button onClick={() => navigate('/products/create')}>Crear producto</Button>
+        <div className='flex items-center justify-between gap-2'>
+          <SideFiltersToggleButton
+            open={sideFiltersOpen}
+            onToggle={toggleSideFiltersOpen}
+            hasAppliedFilters={hasAppliedFilters}
+          />
+          <Button onClick={goToCreateProduct}>Crear producto</Button>
         </div>
         <div className="flex-1 min-h-0 overflow-hidden">
           <DataTable
+            store={productsDataTableStore}
             columns={productColumns}
-            fetcher={productsApi.getAll}
+            fetcher={fetchProducts}
             refreshKey={refreshKey}
-            sideFilters={[
-              {
-                label: 'En oferta',
-                key: 'isOnOffer',
-                type: 'boolean',
-              },
-              {
-                label: 'Categoría',
-                key: 'categoryId',
-                type: 'async-select',
-                fetcher: fetchCategoriesAsSelectOptions,
-                placeholder: 'Selecciona una categoría',
-                searchPlaceholder: 'Buscar categoría...',
-              }
-            ]}
-            actions={[
-              {
-                label: "Editar",
-                icon: EditIcon,
-                onClick: (row) => navigate(`/products/${row.id}`),
-              },
-              {
-                label: "Eliminar",
-                icon: TrashIcon,
-                variant: "destructive",
-                onClick: (row) => setRowToDelete(row),
-              },
-            ]}
+            showSideFiltersToggle={false}
+            sideFilters={sideFilters}
+            actions={tableActions}
           />
         </div>
       </div>
@@ -128,7 +51,7 @@ export const MainPage = () => {
       {rowToDelete && (
         <DeleteModal
           open={!!rowToDelete}
-          onOpenChange={(o) => !o && setRowToDelete(null)}
+          onOpenChange={handleDeleteModalOpenChange}
           trigger={null}
           title="Eliminar producto"
           description={`¿Deseas eliminar "${rowToDelete.name}"? Esta acción no se puede deshacer.`}

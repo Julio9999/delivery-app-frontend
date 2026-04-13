@@ -1,78 +1,126 @@
-import { useState, useMemo } from 'react';
-import { useFetch } from '../../../hooks/useFetch';
+import { useEffect, useMemo, useRef } from "react";
+import { useStore } from "zustand";
+import type {
+  PaginatedResult,
+  PaginationParams,
+} from "@/api/interfaces/pagination";
+import {
+  type DataTableStoreApi,
+  type DataTableFilters,
+} from "@/stores/data-table-store";
 
-export interface PaginatedResult<T> {
-  items: T[];
-  totalItems: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-}
+export type { PaginatedResult };
 
-export type DataTableBaseParams = {
-  page: number;
-  pageSize: number;
-};
+export type DataTableBaseParams = Required<Pick<PaginationParams, "page" | "pageSize">>;
 
-export type DataTableFilterValues = Record<string, string | number | boolean>;
+export type DataTableFilterValues = DataTableFilters;
 
-interface UseDataTableOptions<TFilterParams extends Record<string, unknown>> {
-  initialPage?: number;
-  initialPageSize?: number;
+type UseDataTableOptions<T,TFilterParams extends DataTableFilters> = {
+  store: DataTableStoreApi<T, TFilterParams>;
   queryKey?: readonly unknown[];
   enabled?: boolean;
-  initialFilters?: TFilterParams;
-}
+};
 
-export function useDataTable<
-  T,
-  TFilterParams extends Record<string, unknown> = Record<string, never>,
->(
-  fetcher: (params: DataTableBaseParams & TFilterParams) => Promise<PaginatedResult<T>>,
+export const useDataTableSideFiltersState = <T,TFilterParams extends DataTableFilters>(store: DataTableStoreApi<T, TFilterParams>) => {
+  const {
+    sideFiltersOpen,
+    hasAppliedFilters,
+    setSideFiltersOpen,
+    toggleSideFiltersOpen,
+  } = useStore(store);
+
+  return {
+    sideFiltersOpen,
+    hasAppliedFilters,
+    setSideFiltersOpen,
+    toggleSideFiltersOpen,
+  };
+};
+
+export const useDataTable = <T,TFilterParams extends DataTableFilters = Record<string, never>>(fetcher: (params: DataTableBaseParams & TFilterParams) => Promise<PaginatedResult<T>>,
   {
-    initialPage = 0,
-    initialPageSize = 20,
+    store,
     queryKey = [],
     enabled = true,
-    initialFilters,
-  }: UseDataTableOptions<TFilterParams> = {},
-) {
-  const [pageIndex, setPageIndex] = useState(initialPage);
-  const [pageSize, setPageSize] = useState(initialPageSize);
-  const [appliedFilters, setAppliedFilters] = useState<TFilterParams>(
-    initialFilters ?? ({} as TFilterParams),
-  );
-  const [fetchTrigger, setFetchTrigger] = useState(0);
+  }: UseDataTableOptions<T, TFilterParams>,
+) => {
+  const {
+    pageIndex,
+    pageSize,
+    appliedFilters,
+    hasAppliedFilters,
+    data,
+    totalPages,
+    isLoading,
+    error,
+    fetchTrigger,
+    setPageIndex,
+    setPageSize,
+    applyFilters,
+    clearFilters,
+    draftValues,
+    draftLabels,
+    setDraftValue,
+    setDraftLabel,
+    clearDraftState,
+    refetch,
+    sideFiltersOpen,
+    setSideFiltersOpen,
+    startFetch,
+    completeFetch,
+    failFetch,
+  } = useStore(store);
 
-  const keyString = useMemo(
-    () => JSON.stringify([...queryKey, pageIndex, pageSize, appliedFilters, fetchTrigger]),
-    [queryKey, pageIndex, pageSize, appliedFilters, fetchTrigger],
+  const requestIdRef = useRef(0);
+  const serializedQueryKey = useMemo(
+    () => JSON.stringify(queryKey),
+    [queryKey],
   );
 
-  const { data: result, isLoading, error } = useFetch<PaginatedResult<T>>({
-    key: keyString,
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+
+    startFetch();
+
+    void fetcher({
+      page: pageIndex + 1,
+      pageSize,
+      ...appliedFilters,
+    } as DataTableBaseParams & TFilterParams)
+      .then((result) => {
+        if (requestIdRef.current !== requestId) {
+          return;
+        }
+
+        completeFetch({
+          data: result.items,
+          totalPages: result.totalPages,
+        });
+      })
+      .catch((fetchError: unknown) => {
+        if (requestIdRef.current !== requestId) {
+          return;
+        }
+
+        failFetch(fetchError);
+      });
+  }, [
+    appliedFilters,
+    completeFetch,
     enabled,
-    fetcher: () =>
-      fetcher({
-        page: pageIndex + 1,
-        pageSize,
-        ...appliedFilters,
-      } as DataTableBaseParams & TFilterParams),
-  });
-
-
-  const data = result?.items ?? [];
-  const totalPages = result?.totalPages ?? 0;
-
-  const applyFilters = (nextFilters: TFilterParams) => {
-    setAppliedFilters(nextFilters);
-    setPageIndex(0);
-  };
-
-  const clearFilters = () => {
-    setAppliedFilters({} as TFilterParams);
-    setPageIndex(0);
-  };
+    failFetch,
+    fetchTrigger,
+    fetcher,
+    pageIndex,
+    pageSize,
+    serializedQueryKey,
+    startFetch,
+  ]);
 
   return {
     data,
@@ -85,7 +133,15 @@ export function useDataTable<
     appliedFilters,
     applyFilters,
     clearFilters,
+    draftValues,
+    draftLabels,
+    setDraftValue,
+    setDraftLabel,
+    clearDraftState,
     totalPages,
-    refetch: () => setFetchTrigger((t) => t + 1),
+    hasAppliedFilters,
+    refetch,
+    sideFiltersOpen,
+    setSideFiltersOpen,
   };
-}
+};

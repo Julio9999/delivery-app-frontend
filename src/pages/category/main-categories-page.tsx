@@ -9,9 +9,11 @@ import { DeleteModal } from '@/components/common/delete-modal';
 import { showSuccessToast } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { PageTitlePortal } from '@/components/layouts/page-title-portal';
+import { useMainStore } from '@/stores/main-store';
 
 export const MainCategoriesPage = () => {
   const navigate = useNavigate();
+  const categoriesDataTableStore = useMainStore((state) => state.categories);
   const [rowToDelete, setRowToDelete] = useState<Category | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -58,6 +60,7 @@ export const MainCategoriesPage = () => {
 
         <div className="border-blue-500 flex-1 h-full">
           <DataTable
+            store={categoriesDataTableStore}
             columns={categoryColumns}
             fetcher={categoriesApi.getAll}
             refreshKey={refreshKey}

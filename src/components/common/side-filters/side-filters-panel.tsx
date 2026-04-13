@@ -1,10 +1,10 @@
 import React from "react";
-import { MenuIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SelectAsyncPaginated } from "@/components/common/select-async-paginate/select-async-paginated";
 import type { SelectAsyncPaginatedFetcher } from "@/components/common/select-async-paginate/use-select-async-paginated";
+import { SideFiltersToggleButton } from "@/components/common/side-filters/side-filters-toggle-button";
 
 export type SideFilterType = "text" | "number" | "boolean" | "date" | "async-select";
 
@@ -39,6 +39,15 @@ interface SideFiltersPanelProps {
   title?: string;
   onApply: (values: SideFilterValues) => void;
   onClear?: () => void;
+  open?: boolean;
+  onOpenChange?: (isOpen: boolean) => void;
+  appliedValues?: SideFilterValues;
+  draftValues?: Record<string, string>;
+  draftLabels?: Record<string, string>;
+  onDraftValueChange?: (key: string, value: string) => void;
+  onDraftLabelChange?: (key: string, value: string) => void;
+  showToggleButton?: boolean;
+  hasAppliedFilters?: boolean;
 }
 
 function parseFilterValue(filter: SideFilterDefinition, value?: string) {
@@ -67,10 +76,74 @@ export function SideFiltersPanel({
   title = "Filtros",
   onApply,
   onClear,
+  open: controlledOpen,
+  onOpenChange,
+  appliedValues,
+  draftValues: controlledDraftValues,
+  draftLabels: controlledDraftLabels,
+  onDraftValueChange,
+  onDraftLabelChange,
+  showToggleButton = true,
+  hasAppliedFilters = false,
 }: SideFiltersPanelProps) {
-  const [open, setOpen] = React.useState(false);
-  const [draftValues, setDraftValues] = React.useState<Record<string, string>>({});
-  const [draftLabels, setDraftLabels] = React.useState<Record<string, string>>({});
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const [internalDraftValues, setInternalDraftValues] = React.useState<Record<string, string>>({});
+  const [internalDraftLabels, setInternalDraftLabels] = React.useState<Record<string, string>>({});
+
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
+  const draftValues = controlledDraftValues ?? internalDraftValues;
+  const draftLabels = controlledDraftLabels ?? internalDraftLabels;
+
+  React.useEffect(() => {
+    if (!appliedValues || controlledDraftValues) {
+      return;
+    }
+
+    const nextDraftValues = Object.entries(appliedValues).reduce<Record<string, string>>(
+      (acc, [key, value]) => {
+        if (value === undefined || value === null) {
+          return acc;
+        }
+
+        acc[key] = String(value);
+        return acc;
+      },
+      {},
+    );
+
+    setInternalDraftValues(nextDraftValues);
+  }, [appliedValues, controlledDraftValues]);
+
+  const setDraftValue = React.useCallback(
+    (key: string, value: string) => {
+      if (onDraftValueChange) {
+        onDraftValueChange(key, value);
+        return;
+      }
+
+      setInternalDraftValues((previous) => ({
+        ...previous,
+        [key]: value,
+      }));
+    },
+    [onDraftValueChange],
+  );
+
+  const setDraftLabel = React.useCallback(
+    (key: string, value: string) => {
+      if (onDraftLabelChange) {
+        onDraftLabelChange(key, value);
+        return;
+      }
+
+      setInternalDraftLabels((previous) => ({
+        ...previous,
+        [key]: value,
+      }));
+    },
+    [onDraftLabelChange],
+  );
 
   const handleApply = React.useCallback(() => {
     const appliedValues = filters.reduce<SideFilterValues>((acc, filter) => {
@@ -85,25 +158,42 @@ export function SideFiltersPanel({
   }, [draftValues, filters, onApply]);
 
   const handleClear = React.useCallback(() => {
-    setDraftValues({});
-    setDraftLabels({});
+    if (!controlledDraftValues) {
+      setInternalDraftValues({});
+    }
+
+    if (!controlledDraftLabels) {
+      setInternalDraftLabels({});
+    }
+
+    filters.forEach((filter) => {
+      onDraftValueChange?.(filter.key, "");
+      onDraftLabelChange?.(filter.key, "");
+    });
+
     onClear?.();
-  }, [onClear]);
+  }, [
+    controlledDraftLabels,
+    controlledDraftValues,
+    filters,
+    onClear,
+    onDraftLabelChange,
+    onDraftValueChange,
+  ]);
 
   if (filters.length === 0) {
     return null;
   }
 
   return (
-    <div className="flex h-full min-h-0 items-start gap-2">
-      <Button
-        variant="outline"
-        size="icon"
-        aria-label={open ? "Cerrar filtros" : "Abrir filtros"}
-        onClick={() => setOpen((previous) => !previous)}
-      >
-        {open ? <XIcon /> : <MenuIcon />}
-      </Button>
+    <div className="flex h-full min-h-0 flex-col items-start gap-2">
+      {showToggleButton && (
+        <SideFiltersToggleButton
+          open={open}
+          onToggle={() => setOpen(!open)}
+          hasAppliedFilters={hasAppliedFilters}
+        />
+      )}
 
       {open && (
         <aside className="flex h-full min-h-0 w-72 shrink-0 flex-col  border bg-background p-4">
@@ -122,15 +212,8 @@ export function SideFiltersPanel({
                       value={draftValues[filter.key] ?? null}
                       selectedLabel={draftLabels[filter.key] ?? null}
                       onValueChange={(id, label) => {
-                        setDraftValues((previous) => ({
-                          ...previous,
-                          [filter.key]: id ?? "",
-                        }));
-
-                        setDraftLabels((previous) => ({
-                          ...previous,
-                          [filter.key]: label ?? "",
-                        }));
+                        setDraftValue(filter.key, id ?? "");
+                        setDraftLabel(filter.key, label ?? "");
                       }}
                       queryParams={filter.queryParams}
                       pageSize={filter.pageSize}
@@ -150,10 +233,7 @@ export function SideFiltersPanel({
                     className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
                     value={draftValues[filter.key] ?? ""}
                     onChange={(event) =>
-                      setDraftValues((previous) => ({
-                        ...previous,
-                        [filter.key]: event.target.value,
-                      }))
+                      setDraftValue(filter.key, event.target.value)
                     }
                   >
                     <option value="">Todos</option>
@@ -175,10 +255,7 @@ export function SideFiltersPanel({
                     }
                     value={draftValues[filter.key] ?? ""}
                     onChange={(event) =>
-                      setDraftValues((previous) => ({
-                        ...previous,
-                        [filter.key]: event.target.value,
-                      }))
+                      setDraftValue(filter.key, event.target.value)
                     }
                   />
                   </>
