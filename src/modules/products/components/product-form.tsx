@@ -4,6 +4,7 @@ import { Card, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { useWatch } from 'react-hook-form';
 import { useProductForm } from '../hooks/use-product-form';
@@ -29,6 +30,7 @@ export const ProductFormComponent: React.FC<ProductFormProps> = ({
         onSubmit,
         goBack,
         loading,
+        fetching,
         errors,
         errorMessage,
         imageFile,
@@ -60,6 +62,11 @@ export const ProductFormComponent: React.FC<ProductFormProps> = ({
                     <Button onClick={goBack}>Volver</Button>
                     {title}
                 </CardHeader>
+                {fetching ? (
+                    <div className="flex items-center justify-center py-12">
+                        <Spinner className="size-8 text-primary-pink" />
+                    </div>
+                ) : (
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Field>
                         <FieldLabel>Nombre</FieldLabel>
@@ -153,6 +160,7 @@ export const ProductFormComponent: React.FC<ProductFormProps> = ({
                         {loading ? 'Guardando...' : submitLabel}
                     </Button>
                 </form>
+                )}
             </Card>
         </div>
     );

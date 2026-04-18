@@ -1,12 +1,19 @@
 import { z } from 'zod';
 
+const offerProductSchema = z.object({
+  id: z.string().min(1, 'Producto invalido'),
+  label: z.string().min(1, 'Producto invalido'),
+});
+
 export const offerSchema = z
   .object({
     name: z.string().optional(),
     offerPrice: z.number().min(0, 'El precio de oferta debe ser mayor o igual a 0'),
     offerStartsAt: z.string().optional(),
     offerEndsAt: z.string().min(1, 'La fecha de fin es obligatoria'),
-    productIds: z.array(z.string()).min(1, 'Debes seleccionar al menos un producto'),
+    products: z
+      .array(offerProductSchema)
+      .min(1, 'Debes seleccionar al menos un producto'),
   })
   .superRefine((data, ctx) => {
     if (!data.offerEndsAt) {

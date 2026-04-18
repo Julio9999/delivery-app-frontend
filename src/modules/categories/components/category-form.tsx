@@ -4,6 +4,7 @@ import { Card, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { Spinner } from '@/components/ui/spinner';
 import { SelectAsyncPaginated } from '@/components/common/select-async-paginate/select-async-paginated';
 import { searchApi } from '@/api/search/search';
 
@@ -28,6 +29,7 @@ export const CategoryFormComponent: React.FC<CategoryFormProps> = ({
         onSubmit,
         goBack,
         loading,
+        fetching,
         errors,
         errorMessage,
         parentLabel,
@@ -73,6 +75,11 @@ export const CategoryFormComponent: React.FC<CategoryFormProps> = ({
                     <Button onClick={goBack}>Volver</Button>
                     {title}
                 </CardHeader>
+                {fetching ? (
+                    <div className="flex items-center justify-center py-12">
+                        <Spinner className="size-8 text-primary-pink" />
+                    </div>
+                ) : (
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Field>
                         <FieldLabel>Nombre</FieldLabel>
@@ -137,6 +144,7 @@ export const CategoryFormComponent: React.FC<CategoryFormProps> = ({
                         {loading ? 'Guardando...' : submitLabel}
                     </Button>
                 </form>
+                )}
             </Card>
         </div>
     );

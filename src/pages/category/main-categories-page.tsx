@@ -53,7 +53,7 @@ export const MainCategoriesPage = () => {
   return (
     <>
       <PageTitlePortal title="Categorías" />
-      <div className="flex flex-col gap-2">
+      <div className="flex h-full min-h-0 flex-col gap-2 overflow-hidden ">
         <div className="flex justify-end">
           <Button onClick={() => navigate('/categories/create')}>Crear categoría</Button>
         </div>

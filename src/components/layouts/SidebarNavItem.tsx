@@ -17,9 +17,9 @@ export function SidebarNavItem({ label, to, icon: Icon, isActive, isExpanded }: 
         to={to}
         title={label}
         className={cn(
-          'group flex items-center gap-3 rounded-xl py-3 text-sm transition-colors hover:bg-white/10',
+          'group flex items-center gap-3  py-3 text-sm transition-colors hover:bg-white/10',
           isExpanded ? 'justify-start px-3' : 'justify-center px-0',
-          isActive ? 'bg-primary/90 text-white' : 'text-slate-200',
+          isActive ? 'bg-primary-pink text-white hover:bg-primary-pink/90' : 'text-slate-200',
         )}
       >
         <Icon className="size-5" aria-hidden="true" />

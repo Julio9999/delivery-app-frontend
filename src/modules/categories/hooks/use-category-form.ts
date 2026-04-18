@@ -137,6 +137,7 @@ export const useCategoryForm = (options?: UseCategoryFormOptions) => {
 		goBack,
 		errors,
 		loading,
+		fetching,
 		errorMessage,
 		parentLabel,
 		setParentLabel,

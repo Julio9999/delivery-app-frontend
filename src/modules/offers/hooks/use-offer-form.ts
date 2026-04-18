@@ -9,11 +9,6 @@ import { offersApi } from '@/api/offers/offers';
 import type { Offer, OfferCreate, OfferUpdate } from '@/api/interfaces/offer';
 import { offerSchema, type OfferForm } from '../schemas/schemas';
 
-type SelectedProduct = {
-  id: string;
-  label: string;
-};
-
 interface UseOfferFormOptions {
   offerId?: string;
 }
@@ -50,7 +45,6 @@ export const useOfferForm = (options?: UseOfferFormOptions) => {
   const [submitting, setSubmitting] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
 
   const navigate = useNavigate();
 
@@ -61,25 +55,18 @@ export const useOfferForm = (options?: UseOfferFormOptions) => {
       offerPrice: 0,
       offerStartsAt: '',
       offerEndsAt: '',
-      productIds: [],
+      products: [],
     },
   });
+
+  const selectedProducts = form.watch('products') ?? [];
 
   const goBack = () => {
     navigate('/offers');
   };
 
-  const syncProductIdsInForm = (items: SelectedProduct[]) => {
-    form.setValue(
-      'productIds',
-      items.map((item) => item.id),
-      { shouldValidate: true },
-    );
-  };
-
-  const handleProductsChange = (items: SelectedProduct[]) => {
-    setSelectedProducts(items);
-    syncProductIdsInForm(items);
+  const handleProductsChange = (items: OfferForm['products']) => {
+    form.setValue('products', items, { shouldValidate: true, shouldDirty: true });
   };
 
   const onSubmit = async (data: OfferForm) => {
@@ -92,7 +79,7 @@ export const useOfferForm = (options?: UseOfferFormOptions) => {
         offerPrice: data.offerPrice,
         offerStartsAt: toIsoStringOrNull(data.offerStartsAt),
         offerEndsAt: toIsoStringOrNull(data.offerEndsAt),
-        productIds: data.productIds,
+        productIds: data.products.map((product) => product.id),
       };
 
       if (options?.offerId) {
@@ -107,9 +94,8 @@ export const useOfferForm = (options?: UseOfferFormOptions) => {
           offerPrice: 0,
           offerStartsAt: '',
           offerEndsAt: '',
-          productIds: [],
+          products: [],
         });
-        setSelectedProducts([]);
         showSuccessToast('Oferta creada con exito');
       }
     } catch (error: unknown) {
@@ -138,13 +124,12 @@ export const useOfferForm = (options?: UseOfferFormOptions) => {
         label: product.name,
       }));
 
-      setSelectedProducts(nextProducts);
       form.reset({
         name: offer.name ?? '',
         offerPrice: offer.offerPrice ?? 0,
         offerStartsAt: toDateTimeLocal(offer.offerStartsAt ?? null),
         offerEndsAt: toDateTimeLocal(offer.offerEndsAt ?? null),
-        productIds: nextProducts.map((product) => product.id),
+        products: nextProducts,
       });
     },
     onError: () => {
@@ -162,6 +147,7 @@ export const useOfferForm = (options?: UseOfferFormOptions) => {
     onSubmit,
     goBack,
     loading,
+    fetching,
     errorMessage,
     selectedProducts,
     handleProductsChange,

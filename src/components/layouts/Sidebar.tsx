@@ -17,6 +17,14 @@ interface SidebarProps {
   onLogout: () => Promise<void>;
 }
 
+function isItemActive(currentPath: string, itemPath: string): boolean {
+  if (itemPath === '/') {
+    return currentPath === '/';
+  }
+
+  return currentPath === itemPath || currentPath.startsWith(`${itemPath}/`);
+}
+
 export default function Sidebar({ items, isExpanded, currentPath, onToggle, onLogout }: SidebarProps) {
   return (
     <aside
@@ -47,7 +55,7 @@ export default function Sidebar({ items, isExpanded, currentPath, onToggle, onLo
               to={item.to}
               icon={item.icon}
               isExpanded={isExpanded}
-              isActive={currentPath === item.to}
+              isActive={isItemActive(currentPath, item.to)}
             />
           ))}
         </ul>
