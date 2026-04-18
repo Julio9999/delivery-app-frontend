@@ -10,7 +10,10 @@ export type SelectAsyncPaginatedFetcher = (
 export interface UseSelectAsyncPaginatedOptions {
 	fetcher: SelectAsyncPaginatedFetcher;
 	value?: string | null;
-	onValueChange: (id: string | null, label: string | null) => void;
+	onValueChange?: (id: string | null, label: string | null) => void;
+	multiple?: boolean;
+	selectedItems?: SelectAsyncPaginatedItem[];
+	onValuesChange?: (items: SelectAsyncPaginatedItem[]) => void;
 	queryParams?: Record<string, string | number | boolean | undefined>;
 	pageSize?: number;
 	searchParamName?: string;
@@ -23,6 +26,9 @@ export function useSelectAsyncPaginated({
 	fetcher,
 	value,
 	onValueChange,
+	multiple = false,
+	selectedItems,
+	onValuesChange,
 	queryParams,
 	pageSize = 10,
 	searchParamName = 'search',
@@ -41,8 +47,11 @@ export function useSelectAsyncPaginated({
 	const [error, setError] = useState<string | null>(null);
 
 	const [internalValue, setInternalValue] = useState<string | null>(value ?? null);
+	const [internalSelectedItems, setInternalSelectedItems] = useState<
+		SelectAsyncPaginatedItem[]
+	>([]);
 	const [triggerWidth, setTriggerWidth] = useState<number | undefined>(undefined);
-	const triggerRef = useRef<HTMLButtonElement | null>(null);
+	const triggerRef = useRef<HTMLElement | null>(null);
 
 	const debouncedSearch = useDebouncedValue(searchTerm, debounceMs);
 
@@ -61,12 +70,18 @@ export function useSelectAsyncPaginated({
 	}, [open]);
 
 	const selectedValue = value ?? internalValue;
+	const selectedItemsValue = selectedItems ?? internalSelectedItems;
 
 	const resolvedSelectedLabel =
 		selectedLabel?.trim() ? selectedLabel : undefined;
 
-	const selectedLabelToShow =
-		selectedValue === null
+	const selectedLabelToShow = multiple
+		? selectedItemsValue.length === 0
+			? placeholder
+			: selectedItemsValue.length === 1
+				? selectedItemsValue[0].label
+				: `${selectedItemsValue.length} seleccionados`
+		: selectedValue === null
 			? placeholder
 			: items.find((item) => String(item.id) === String(selectedValue))?.label ?? resolvedSelectedLabel ?? placeholder;
 
@@ -127,16 +142,43 @@ export function useSelectAsyncPaginated({
 
 	const handleSelect = useCallback(
 		(item: SelectAsyncPaginatedItem | null) => {
+			if (multiple) {
+				if (!item) {
+					if (selectedItems === undefined) {
+						setInternalSelectedItems([]);
+					}
+					onValuesChange?.([]);
+					return;
+				}
+
+				const exists = selectedItemsValue.some(
+					(selectedItem) => String(selectedItem.id) === String(item.id),
+				);
+
+				const nextItems = exists
+					? selectedItemsValue.filter(
+						(selectedItem) => String(selectedItem.id) !== String(item.id),
+					)
+					: [...selectedItemsValue, item];
+
+				if (selectedItems === undefined) {
+					setInternalSelectedItems(nextItems);
+				}
+
+				onValuesChange?.(nextItems);
+				return;
+			}
+
 			setOpen(false);
 			if (!item) {
 				setInternalValue(null);
-				onValueChange(null, null);
+				onValueChange?.(null, null);
 				return;
 			}
 			setInternalValue(item.id);
-			onValueChange(item.id, item.label);
+			onValueChange?.(item.id, item.label);
 		},
-		[onValueChange],
+		[multiple, onValueChange, onValuesChange, selectedItems, selectedItemsValue],
 	);
 
 	return {
@@ -154,6 +196,7 @@ export function useSelectAsyncPaginated({
 		triggerRef,
 		triggerWidth,
 		selectedValue,
+		selectedItems: selectedItemsValue,
 	};
 }
 

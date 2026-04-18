@@ -20,9 +20,6 @@ export interface ProductCreate {
   description: string;
   imageUrl?: string;
   price: number;
-  offerPrice?: number | null;
-  offerStartsAt?: string | null;
-  offerEndsAt?: string | null;
   stock: number;
   categoryId?: string;
 }

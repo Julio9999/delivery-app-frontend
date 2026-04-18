@@ -1,0 +1,169 @@
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigate } from 'react-router';
+
+import { useFetch } from '@/hooks/useFetch';
+import { showErrorToast, showSuccessToast } from '@/lib/utils';
+import { offersApi } from '@/api/offers/offers';
+import type { Offer, OfferCreate, OfferUpdate } from '@/api/interfaces/offer';
+import { offerSchema, type OfferForm } from '../schemas/schemas';
+
+type SelectedProduct = {
+  id: string;
+  label: string;
+};
+
+interface UseOfferFormOptions {
+  offerId?: string;
+}
+
+const toDateTimeLocal = (value?: string | null): string => {
+  if (!value) {
+    return '';
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return '';
+  }
+
+  const timezoneOffset = parsed.getTimezoneOffset() * 60 * 1000;
+  const localDate = new Date(parsed.getTime() - timezoneOffset);
+  return localDate.toISOString().slice(0, 16);
+};
+
+const toIsoStringOrNull = (value?: string): string | null => {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return parsed.toISOString();
+};
+
+export const useOfferForm = (options?: UseOfferFormOptions) => {
+  const [submitting, setSubmitting] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
+
+  const navigate = useNavigate();
+
+  const form = useForm<OfferForm>({
+    resolver: zodResolver(offerSchema),
+    defaultValues: {
+      name: '',
+      offerPrice: 0,
+      offerStartsAt: '',
+      offerEndsAt: '',
+      productIds: [],
+    },
+  });
+
+  const goBack = () => {
+    navigate('/offers');
+  };
+
+  const syncProductIdsInForm = (items: SelectedProduct[]) => {
+    form.setValue(
+      'productIds',
+      items.map((item) => item.id),
+      { shouldValidate: true },
+    );
+  };
+
+  const handleProductsChange = (items: SelectedProduct[]) => {
+    setSelectedProducts(items);
+    syncProductIdsInForm(items);
+  };
+
+  const onSubmit = async (data: OfferForm) => {
+    setErrorMessage(null);
+    setSubmitting(true);
+
+    try {
+      const basePayload = {
+        name: data.name?.trim() ? data.name.trim() : null,
+        offerPrice: data.offerPrice,
+        offerStartsAt: toIsoStringOrNull(data.offerStartsAt),
+        offerEndsAt: toIsoStringOrNull(data.offerEndsAt),
+        productIds: data.productIds,
+      };
+
+      if (options?.offerId) {
+        const payload: OfferUpdate = basePayload;
+        await offersApi.update(options.offerId, payload);
+        showSuccessToast('Oferta actualizada con exito');
+      } else {
+        const payload: OfferCreate = basePayload;
+        await offersApi.create(payload);
+        form.reset({
+          name: '',
+          offerPrice: 0,
+          offerStartsAt: '',
+          offerEndsAt: '',
+          productIds: [],
+        });
+        setSelectedProducts([]);
+        showSuccessToast('Oferta creada con exito');
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+        showErrorToast(error.message);
+      } else {
+        const message = options?.offerId
+          ? 'Error al actualizar la oferta'
+          : 'Error al crear la oferta';
+        setErrorMessage(message);
+        showErrorToast(message);
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  useFetch<Offer>({
+    key: `offer-${options?.offerId ?? ''}`,
+    enabled: !!options?.offerId,
+    fetcher: () => offersApi.getById(options!.offerId!),
+    onSuccess: (offer) => {
+      const nextProducts = (offer.products ?? []).map((product) => ({
+        id: product.id,
+        label: product.name,
+      }));
+
+      setSelectedProducts(nextProducts);
+      form.reset({
+        name: offer.name ?? '',
+        offerPrice: offer.offerPrice ?? 0,
+        offerStartsAt: toDateTimeLocal(offer.offerStartsAt ?? null),
+        offerEndsAt: toDateTimeLocal(offer.offerEndsAt ?? null),
+        productIds: nextProducts.map((product) => product.id),
+      });
+    },
+    onError: () => {
+      setErrorMessage('Error al cargar la oferta');
+    },
+    onLoading: (isLoading) => setFetching(isLoading),
+  });
+
+  const loading = submitting || fetching;
+
+  return {
+    register: form.register,
+    handleSubmit: form.handleSubmit,
+    errors: form.formState.errors,
+    onSubmit,
+    goBack,
+    loading,
+    errorMessage,
+    selectedProducts,
+    handleProductsChange,
+  };
+};

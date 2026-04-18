@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router';
 import axios from 'axios';
-import { HomeIcon, LayersIcon, BoxIcon } from 'lucide-react';
+import { HomeIcon, LayersIcon, BoxIcon, PercentIcon } from 'lucide-react';
 
 import { authApi } from '@/api/auth/auth';
 import { useAuthSession } from '@/hooks/use-auth-session';
@@ -19,6 +19,7 @@ export default function ProtectedLayout() {
       { label: 'Inicio', to: '/', icon: HomeIcon },
       { label: 'Categorias', to: '/categories', icon: LayersIcon },
       { label: 'Productos', to: '/products', icon: BoxIcon },
+      { label: 'Ofertas', to: '/offers', icon: PercentIcon },
     ],
     [],
   );
