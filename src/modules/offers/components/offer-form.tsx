@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
+import { DatePicker } from '@/components/common/date-picker/date-picker';
 import { SelectAsyncPaginated } from '@/components/common/select-async-paginate/select-async-paginated';
 import { searchApi } from '@/api/search/search';
 
@@ -31,7 +32,9 @@ export const OfferFormComponent: React.FC<OfferFormProps> = ({
     fetching,
     errorMessage,
     selectedProducts,
+    selectedRange,
     handleProductsChange,
+    handleRangeChange,
   } = useOfferForm({ offerId });
 
   return (
@@ -72,16 +75,18 @@ export const OfferFormComponent: React.FC<OfferFormProps> = ({
               </Field>
 
               <Field>
-                <FieldLabel>Fecha inicio (opcional)</FieldLabel>
-                <Input type="datetime-local" {...register('offerStartsAt')} />
+                <FieldLabel>Periodo de oferta</FieldLabel>
+                <DatePicker
+                  enableRange
+                  showTime
+                  allowClear
+                  rangeValue={selectedRange}
+                  onRangeChange={handleRangeChange}
+                  rangePlaceholder="Selecciona fecha de inicio y fin"
+                />
                 {errors.offerStartsAt && (
                   <p className="text-red-500 text-sm mt-1">{errors.offerStartsAt.message}</p>
                 )}
-              </Field>
-
-              <Field>
-                <FieldLabel>Fecha fin</FieldLabel>
-                <Input type="datetime-local" {...register('offerEndsAt')} />
                 {errors.offerEndsAt && (
                   <p className="text-red-500 text-sm mt-1">{errors.offerEndsAt.message}</p>
                 )}

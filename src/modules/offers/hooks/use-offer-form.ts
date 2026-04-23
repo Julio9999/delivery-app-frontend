@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router';
 
+import type { DatePickerRangeValue } from '@/components/common/date-picker/date-picker';
 import { useFetch } from '@/hooks/useFetch';
 import { showErrorToast, showSuccessToast } from '@/lib/utils';
 import { offersApi } from '@/api/offers/offers';
@@ -60,6 +61,19 @@ export const useOfferForm = (options?: UseOfferFormOptions) => {
   });
 
   const selectedProducts = form.watch('products') ?? [];
+  const offerStartsAt = form.watch('offerStartsAt');
+  const offerEndsAt = form.watch('offerEndsAt');
+
+  const selectedRange = useMemo(
+    () =>
+      offerStartsAt || offerEndsAt
+        ? {
+            from: offerStartsAt || undefined,
+            to: offerEndsAt || undefined,
+          }
+        : undefined,
+    [offerStartsAt, offerEndsAt],
+  );
 
   const goBack = () => {
     navigate('/offers');
@@ -68,6 +82,20 @@ export const useOfferForm = (options?: UseOfferFormOptions) => {
   const handleProductsChange = (items: OfferForm['products']) => {
     form.setValue('products', items, { shouldValidate: true, shouldDirty: true });
   };
+
+  const handleRangeChange = useCallback(
+    (range: DatePickerRangeValue | undefined) => {
+      form.setValue('offerStartsAt', range?.from ?? '', {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      form.setValue('offerEndsAt', range?.to ?? '', {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    },
+    [form],
+  );
 
   const onSubmit = async (data: OfferForm) => {
     setErrorMessage(null);
@@ -142,6 +170,7 @@ export const useOfferForm = (options?: UseOfferFormOptions) => {
 
   return {
     register: form.register,
+    control: form.control,
     handleSubmit: form.handleSubmit,
     errors: form.formState.errors,
     onSubmit,
@@ -150,6 +179,8 @@ export const useOfferForm = (options?: UseOfferFormOptions) => {
     fetching,
     errorMessage,
     selectedProducts,
+    selectedRange,
     handleProductsChange,
+    handleRangeChange,
   };
 };
