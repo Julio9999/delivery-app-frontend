@@ -6,7 +6,7 @@ export interface OfferProductSummary {
 export interface Offer {
   id: string;
   name?: string | null;
-  offerPrice?: number | null;
+  discountPercentage?: number | null;
   offerStartsAt?: string | null;
   offerEndsAt?: string | null;
   isOnOffer: boolean;
@@ -18,7 +18,7 @@ export interface Offer {
 
 export interface OfferCreate {
   name?: string | null;
-  offerPrice?: number | null;
+  discountPercentage?: number | null;
   offerStartsAt?: string | null;
   offerEndsAt?: string | null;
   productIds: string[];

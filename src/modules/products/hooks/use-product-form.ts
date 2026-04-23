@@ -13,12 +13,35 @@ interface UseProductFormOptions {
   productId?: string;
 }
 
+interface ProductPricingInfo {
+  isOnOffer: boolean;
+  discountPercentage: number | null;
+  currentPrice: number;
+}
+
+const toNumberOrNull = (value: unknown): number | null => {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+};
+
+const buildPricingInfo = (product: Product): ProductPricingInfo => {
+  const discountPercentage = toNumberOrNull(product.discountPercentage);
+  const effectivePrice = toNumberOrNull((product as Product & { effectivePrice?: number }).effectivePrice);
+  const currentPrice = toNumberOrNull(product.currentPrice) ?? effectivePrice ?? product.price;
+
+  return {
+    isOnOffer: Boolean(product.isOnOffer),
+    discountPercentage,
+    currentPrice,
+  };
+};
+
 export const useProductForm = (options?: UseProductFormOptions) => {
   const [submitting, setSubmitting] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
+  const [pricingInfo, setPricingInfo] = useState<ProductPricingInfo | null>(null);
 
   const router = useNavigate()
 
@@ -59,6 +82,7 @@ export const useProductForm = (options?: UseProductFormOptions) => {
         }
 
         setCurrentImageUrl(finalProduct.imageUrl || null);
+
         showSuccessToast("Producto actualizado con éxito");
       } else {
         const created = await productsApi.create(payload);
@@ -70,6 +94,7 @@ export const useProductForm = (options?: UseProductFormOptions) => {
 
         setCurrentImageUrl(finalProduct.imageUrl || null);
         setImageFile(null);
+        setPricingInfo(null);
         form.reset();
         showSuccessToast("Producto creado con éxito");
       }
@@ -113,6 +138,7 @@ export const useProductForm = (options?: UseProductFormOptions) => {
       });
       setCurrentImageUrl(prod.imageUrl || null);
       setImageFile(null);
+      setPricingInfo(buildPricingInfo(prod));
     },
     onError: () => {
       setErrorMessage("Error al cargar el producto");
@@ -137,5 +163,6 @@ export const useProductForm = (options?: UseProductFormOptions) => {
     imageFile,
     setImageFile,
     currentImageUrl,
+    pricingInfo,
   };
 };

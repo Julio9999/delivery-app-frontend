@@ -28,10 +28,12 @@ const offerColumns = defineColumns<Offer>([
     cell: ({ row }) => row.original.name || '-',
   },
   {
-    accessorKey: 'offerPrice',
-    header: 'Precio oferta',
+    accessorKey: 'discountPercentage',
+    header: 'Descuento',
     cell: ({ row }) =>
-      typeof row.original.offerPrice === 'number' ? row.original.offerPrice : '-',
+      typeof row.original.discountPercentage === 'number'
+        ? `${row.original.discountPercentage}%`
+        : '-',
   },
   {
     accessorKey: 'offerStartsAt',

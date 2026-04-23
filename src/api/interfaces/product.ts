@@ -8,7 +8,7 @@ export interface Product {
   price: number;
   currentPrice?: number;
   isOnOffer?: boolean;
-  offerPrice?: number | null;
+  discountPercentage?: number | null;
   offerStartsAt?: string | null;
   offerEndsAt?: string | null;
   stock: number;

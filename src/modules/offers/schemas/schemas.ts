@@ -8,7 +8,10 @@ const offerProductSchema = z.object({
 export const offerSchema = z
   .object({
     name: z.string().optional(),
-    offerPrice: z.number().min(0, 'El precio de oferta debe ser mayor o igual a 0'),
+    discountPercentage: z
+      .number()
+      .min(0, 'El porcentaje debe ser mayor o igual a 0')
+      .max(100, 'El porcentaje debe ser menor o igual a 100'),
     offerStartsAt: z.string().optional(),
     offerEndsAt: z.string().min(1, 'La fecha de fin es obligatoria'),
     products: z

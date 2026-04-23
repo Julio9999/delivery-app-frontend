@@ -52,7 +52,7 @@ export const useOfferForm = (options?: UseOfferFormOptions) => {
     resolver: zodResolver(offerSchema),
     defaultValues: {
       name: '',
-      offerPrice: 0,
+      discountPercentage: 0,
       offerStartsAt: '',
       offerEndsAt: '',
       products: [],
@@ -76,7 +76,7 @@ export const useOfferForm = (options?: UseOfferFormOptions) => {
     try {
       const basePayload = {
         name: data.name?.trim() ? data.name.trim() : null,
-        offerPrice: data.offerPrice,
+        discountPercentage: data.discountPercentage,
         offerStartsAt: toIsoStringOrNull(data.offerStartsAt),
         offerEndsAt: toIsoStringOrNull(data.offerEndsAt),
         productIds: data.products.map((product) => product.id),
@@ -91,7 +91,7 @@ export const useOfferForm = (options?: UseOfferFormOptions) => {
         await offersApi.create(payload);
         form.reset({
           name: '',
-          offerPrice: 0,
+          discountPercentage: 0,
           offerStartsAt: '',
           offerEndsAt: '',
           products: [],
@@ -126,7 +126,7 @@ export const useOfferForm = (options?: UseOfferFormOptions) => {
 
       form.reset({
         name: offer.name ?? '',
-        offerPrice: offer.offerPrice ?? 0,
+        discountPercentage: offer.discountPercentage ?? 0,
         offerStartsAt: toDateTimeLocal(offer.offerStartsAt ?? null),
         offerEndsAt: toDateTimeLocal(offer.offerEndsAt ?? null),
         products: nextProducts,

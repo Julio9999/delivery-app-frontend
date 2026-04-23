@@ -32,6 +32,14 @@ const productColumns = defineColumns<Product>([
     cell: ({ row }) => (row.original.isOnOffer ? 'Activa' : '-'),
   },
   {
+    accessorKey: 'discountPercentage',
+    header: 'Descuento',
+    cell: ({ row }) =>
+      row.original.isOnOffer && typeof row.original.discountPercentage === 'number'
+        ? `${row.original.discountPercentage}%`
+        : '-',
+  },
+  {
     accessorKey: 'stock',
     header: 'Stock',
   },

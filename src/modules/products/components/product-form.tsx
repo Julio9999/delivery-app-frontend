@@ -36,6 +36,7 @@ export const ProductFormComponent: React.FC<ProductFormProps> = ({
         imageFile,
         setImageFile,
         currentImageUrl,
+        pricingInfo,
     } = useProductForm({ productId });
 
     const category = useWatch({ control, name: 'category' });
@@ -95,6 +96,15 @@ export const ProductFormComponent: React.FC<ProductFormProps> = ({
                         {errors.price && (
                             <p className="text-red-500 text-sm mt-1">
                                 {errors.price.message}
+                            </p>
+                        )}
+                        {pricingInfo?.isOnOffer && (
+                            <p className="text-primary-pink text-sm mt-1">
+                                Precio real con descuento
+                                {typeof pricingInfo.discountPercentage === 'number'
+                                    ? ` (${pricingInfo.discountPercentage}%)`
+                                    : ''}
+                                : ${pricingInfo.currentPrice}
                             </p>
                         )}
                     </Field>

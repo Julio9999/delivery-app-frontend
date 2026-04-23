@@ -56,16 +56,18 @@ export const OfferFormComponent: React.FC<OfferFormProps> = ({
               </Field>
 
               <Field>
-                <FieldLabel>Precio de oferta</FieldLabel>
+                <FieldLabel>Descuento (%)</FieldLabel>
                 <Input
                   type="number"
                   step="0.01"
-                  {...register('offerPrice', {
+                  min={0}
+                  max={100}
+                  {...register('discountPercentage', {
                     valueAsNumber: true,
                   })}
                 />
-                {errors.offerPrice && (
-                  <p className="text-red-500 text-sm mt-1">{errors.offerPrice.message}</p>
+                {errors.discountPercentage && (
+                  <p className="text-red-500 text-sm mt-1">{errors.discountPercentage.message}</p>
                 )}
               </Field>
 
