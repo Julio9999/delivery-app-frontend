@@ -8,14 +8,16 @@ interface SidebarNavItemProps {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   isActive: boolean;
   isExpanded: boolean;
+  onNavigate?: () => void;
 }
 
-export function SidebarNavItem({ label, to, icon: Icon, isActive, isExpanded }: SidebarNavItemProps) {
+export function SidebarNavItem({ label, to, icon: Icon, isActive, isExpanded, onNavigate }: SidebarNavItemProps) {
   return (
     <li>
       <Link
         to={to}
         title={label}
+        onClick={onNavigate}
         className={cn(
           'group flex items-center gap-3  py-3 text-sm transition-colors hover:bg-white/10',
           isExpanded ? 'justify-start px-3' : 'justify-center px-0',

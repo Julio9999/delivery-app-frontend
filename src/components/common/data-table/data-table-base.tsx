@@ -47,8 +47,8 @@ export function DataTableBase<TData, TValue>({
                     <Spinner className="size-6" />
                 </div>
             )}
-            <div className="flex-1 h-full min-h-0 overflow-hidden">
-                <div className="h-full overflow-hidden">
+            <div className="flex-1 h-full min-h-0 overflow-x-auto">
+                <div className="h-full overflow-x-auto">
                     <Table
                         width={table.getTotalSize()}
                         className="table-fixed block overflow-y-auto overflow-x-hidden table-scroll-primary"
@@ -135,7 +135,7 @@ export function DataTableBase<TData, TValue>({
                 </div>
             </div>
             {enablePagination && (
-                <div className="w-xs ml-auto">
+                <div className="max-w-xs w-full ml-auto">
                     <TablePagination
                         pageIndex={pageIndex}
                         pageCount={totalPages}

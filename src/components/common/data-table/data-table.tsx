@@ -2,6 +2,7 @@ import React, { useEffect } from "react"
 import { getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table"
 import { useDataTable, type DataTableBaseParams, type DataTableFilterValues, type PaginatedResult } from "@/components/common/data-table/useDataTable"
 import type { DataTableFilters, DataTableStoreApi } from "@/stores/data-table-store"
+import { useMediaQuery } from "@/hooks/use-media-query"
 import {
     DropdownMenu,
     DropdownMenuTrigger,
@@ -81,6 +82,7 @@ export function DataTable<TData, TValue>({
         { store, queryKey },
     );
 
+    const isMobile = !useMediaQuery('(min-width: 768px)');
     const [columnSizing, setColumnSizing] = React.useState<Record<string, number>>({});
 
     const allColumns = React.useMemo(() => {
@@ -130,7 +132,7 @@ export function DataTable<TData, TValue>({
         onColumnSizingChange: setColumnSizing,
         columnResizeMode: 'onChange',
         defaultColumn: {
-            enableResizing: true,
+            enableResizing: !isMobile,
         },
         getCoreRowModel: getCoreRowModel(),
         manualPagination: enablePagination,

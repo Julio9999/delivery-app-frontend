@@ -39,7 +39,7 @@ export const OfferFormComponent: React.FC<OfferFormProps> = ({
 
   return (
     <div className="mx-auto overflow-auto w-full">
-      <Card className="w-200 mx-auto px-4">
+      <Card className="max-w-200 w-full mx-auto px-4">
         <CardHeader className="text-2xl font-bold mb-4 flex">
           <Button onClick={goBack}>Volver</Button>
           {title}

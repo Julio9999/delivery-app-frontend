@@ -1,10 +1,13 @@
 import React from "react";
+import { FilterIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { SelectAsyncPaginated } from "@/components/common/select-async-paginate/select-async-paginated";
 import type { SelectAsyncPaginatedFetcher } from "@/components/common/select-async-paginate/use-select-async-paginated";
 import { SideFiltersToggleButton } from "@/components/common/side-filters/side-filters-toggle-button";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 export type SideFilterType = "text" | "number" | "boolean" | "date" | "async-select";
 
@@ -181,8 +184,111 @@ export function SideFiltersPanel({
     onDraftValueChange,
   ]);
 
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+
   if (filters.length === 0) {
     return null;
+  }
+
+  const filterContent = (
+    <>
+      <div className="mb-4">
+        <h3 className="text-base font-semibold">{title}</h3>
+      </div>
+
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
+        {filters.map((filter) => (
+          <div key={filter.key} className="mx-1 space-y-2">
+            {filter.type === "async-select" ? (
+              <>
+                <Label>{filter.label}</Label>
+                <SelectAsyncPaginated
+                  fetcher={filter.fetcher}
+                  value={draftValues[filter.key] ?? null}
+                  selectedLabel={draftLabels[filter.key] ?? null}
+                  onValueChange={(id, label) => {
+                    setDraftValue(filter.key, id ?? "");
+                    setDraftLabel(filter.key, label ?? "");
+                  }}
+                  queryParams={filter.queryParams}
+                  pageSize={filter.pageSize}
+                  searchParamName={filter.searchParamName}
+                  debounceMs={filter.debounceMs}
+                  placeholder={filter.placeholder ?? "Selecciona una opción"}
+                  searchPlaceholder={filter.searchPlaceholder ?? "Buscar..."}
+                  allowClear={filter.allowClear ?? true}
+                  clearLabel={filter.clearLabel ?? "Limpiar selección"}
+                />
+              </>
+            ) : filter.type === "boolean" ? (
+              <>
+                <Label htmlFor={`side-filter-${filter.key}`}>{filter.label}</Label>
+              <select
+                id={`side-filter-${filter.key}`}
+                className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                value={draftValues[filter.key] ?? ""}
+                onChange={(event) =>
+                  setDraftValue(filter.key, event.target.value)
+                }
+              >
+                <option value="">Todos</option>
+                <option value="true">Si</option>
+                <option value="false">No</option>
+              </select>
+              </>
+            ) : (
+              <>
+                <Label htmlFor={`side-filter-${filter.key}`}>{filter.label}</Label>
+              <Input
+                id={`side-filter-${filter.key}`}
+                type={
+                  filter.type === "date"
+                    ? "date"
+                    : filter.type === "number"
+                      ? "number"
+                      : "text"
+                }
+                value={draftValues[filter.key] ?? ""}
+                onChange={(event) =>
+                  setDraftValue(filter.key, event.target.value)
+                }
+              />
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 flex justify-end gap-2">
+        <Button variant="outline" onClick={handleClear}>
+          Limpiar
+        </Button>
+        <Button onClick={handleApply}>Aplicar</Button>
+      </div>
+    </>
+  );
+
+  if (!isDesktop) {
+    return (
+      <div className="flex h-full min-h-0 flex-col items-start gap-2">
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className="flex items-center justify-center rounded-full bg-primary p-3 text-white shadow-lg transition hover:bg-primary/90 cursor-pointer min-h-[44px] min-w-[44px]"
+          title={title}
+        >
+          <FilterIcon className="size-5" />
+          <span className="sr-only">{title}</span>
+        </button>
+
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetContent side="right" className="w-80 p-4 flex flex-col">
+            <SheetTitle className="sr-only">{title}</SheetTitle>
+            {filterContent}
+          </SheetContent>
+        </Sheet>
+      </div>
+    );
   }
 
   return (
@@ -197,79 +303,7 @@ export function SideFiltersPanel({
 
       {open && (
         <aside className="flex h-full min-h-0 w-72 shrink-0 flex-col  border bg-background p-4">
-          <div className="mb-4">
-            <h3 className="text-base font-semibold">{title}</h3>
-          </div>
-
-          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
-            {filters.map((filter) => (
-              <div key={filter.key} className="mx-1 space-y-2">
-                {filter.type === "async-select" ? (
-                  <>
-                    <Label>{filter.label}</Label>
-                    <SelectAsyncPaginated
-                      fetcher={filter.fetcher}
-                      value={draftValues[filter.key] ?? null}
-                      selectedLabel={draftLabels[filter.key] ?? null}
-                      onValueChange={(id, label) => {
-                        setDraftValue(filter.key, id ?? "");
-                        setDraftLabel(filter.key, label ?? "");
-                      }}
-                      queryParams={filter.queryParams}
-                      pageSize={filter.pageSize}
-                      searchParamName={filter.searchParamName}
-                      debounceMs={filter.debounceMs}
-                      placeholder={filter.placeholder ?? "Selecciona una opción"}
-                      searchPlaceholder={filter.searchPlaceholder ?? "Buscar..."}
-                      allowClear={filter.allowClear ?? true}
-                      clearLabel={filter.clearLabel ?? "Limpiar selección"}
-                    />
-                  </>
-                ) : filter.type === "boolean" ? (
-                  <>
-                    <Label htmlFor={`side-filter-${filter.key}`}>{filter.label}</Label>
-                  <select
-                    id={`side-filter-${filter.key}`}
-                    className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-                    value={draftValues[filter.key] ?? ""}
-                    onChange={(event) =>
-                      setDraftValue(filter.key, event.target.value)
-                    }
-                  >
-                    <option value="">Todos</option>
-                    <option value="true">Si</option>
-                    <option value="false">No</option>
-                  </select>
-                  </>
-                ) : (
-                  <>
-                    <Label htmlFor={`side-filter-${filter.key}`}>{filter.label}</Label>
-                  <Input
-                    id={`side-filter-${filter.key}`}
-                    type={
-                      filter.type === "date"
-                        ? "date"
-                        : filter.type === "number"
-                          ? "number"
-                          : "text"
-                    }
-                    value={draftValues[filter.key] ?? ""}
-                    onChange={(event) =>
-                      setDraftValue(filter.key, event.target.value)
-                    }
-                  />
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-4 flex justify-end gap-2">
-            <Button variant="outline" onClick={handleClear}>
-              Limpiar
-            </Button>
-            <Button onClick={handleApply}>Aplicar</Button>
-          </div>
+          {filterContent}
         </aside>
       )}
     </div>

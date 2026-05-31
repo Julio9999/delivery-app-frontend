@@ -15,6 +15,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
+import { useMediaQuery } from "@/hooks/use-media-query"
 
 export interface DatePickerRangeValue {
   from?: string
@@ -110,6 +111,7 @@ export function DatePicker({
   allowClear = false,
   enableRange = false,
 }: DatePickerProps) {
+  const isDesktop = useMediaQuery('(min-width: 768px)');
   const isControlled = value !== undefined
   const [internalValue, setInternalValue] = React.useState("")
   const [internalRange, setInternalRange] = React.useState<
@@ -359,7 +361,7 @@ export function DatePicker({
             selected={selectedRange}
             onSelect={handleRangeSelect}
             defaultMonth={selectedRange?.from}
-            numberOfMonths={2}
+            numberOfMonths={isDesktop ? 2 : 1}
             locale={es}
           />
         ) : (
