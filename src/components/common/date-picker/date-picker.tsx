@@ -280,17 +280,12 @@ export function DatePicker({
     }
 
     if (!selectedRange.to) {
-      return format(selectedRange.from, showTime ? "PPP p" : "PPP", {
-        locale: es,
-      })
+      return format(selectedRange.from, showTime ? "dd/MM/yyyy HH:mm" : "dd/MM/yyyy")
     }
 
-    return `${format(selectedRange.from, showTime ? "PPP p" : "PPP", {
-      locale: es,
-    })} - ${format(
+    return `${format(selectedRange.from, showTime ? "dd/MM/yyyy HH:mm" : "dd/MM/yyyy")} - ${format(
       selectedRange.to,
-      showTime ? "PPP p" : "PPP",
-      { locale: es },
+      showTime ? "dd/MM/yyyy HH:mm" : "dd/MM/yyyy",
     )}`
   }, [rangePlaceholder, selectedRange, showTime])
 
@@ -311,7 +306,7 @@ export function DatePicker({
             {enableRange
               ? rangeLabel
               : selectedDate
-              ? format(selectedDate, showTime ? "PPP p" : "PPP", { locale: es })
+              ? format(selectedDate, showTime ? "dd/MM/yyyy HH:mm" : "dd/MM/yyyy")
               : placeholder}
           </span>
           <ChevronDownIcon className="size-4 opacity-70" />

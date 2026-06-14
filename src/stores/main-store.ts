@@ -8,11 +8,13 @@ import {
 import type { Product } from "@/api/interfaces/product";
 import type { Category } from "@/api/interfaces/category";
 import type { Offer } from "@/api/interfaces/offer";
+import type { SaleListItem, SalesFilters } from "@/api/interfaces/sale";
 
 interface MainState {
   products: DataTableStoreApi<Product, DataTableFilters>;
   categories: DataTableStoreApi<Category, DataTableFilters>;
   offers: DataTableStoreApi<Offer, DataTableFilters>;
+  sales: DataTableStoreApi<SaleListItem, SalesFilters>;
   userName: string;
   setUserName: (userName: string) => void;
 }
@@ -21,6 +23,7 @@ export const useMainStore = create<MainState>((set) => ({
   products: createDataTableStore<Product, DataTableFilters>(),
   categories: createDataTableStore<Category, DataTableFilters>(),
   offers: createDataTableStore<Offer, DataTableFilters>(),
+  sales: createDataTableStore<SaleListItem, SalesFilters>(),
   userName: "Admin",
   setUserName: (userName: string) => set({ userName }),
 }));
@@ -37,5 +40,10 @@ export const useCategoriesStoreState = <T>(selector: (state: DataTableStoreState
 
 export const useOffersStoreState = <T>(selector: (state: DataTableStoreState<Offer, DataTableFilters>) => T): T => {
   const store = useMainStore((state) => state.offers);
+  return useStore(store, selector);
+};
+
+export const useSalesStoreState = <T>(selector: (state: DataTableStoreState<SaleListItem, SalesFilters>) => T): T => {
+  const store = useMainStore((state) => state.sales);
   return useStore(store, selector);
 };

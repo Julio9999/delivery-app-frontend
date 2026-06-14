@@ -27,6 +27,7 @@ interface DataTableBaseProps<TData, TValue> {
     table: TableType<TData>;
     onPageChange: (newIndex: number) => void;
     maxBodyHeight?: string;
+    error?: unknown;
 }
 
 export function DataTableBase<TData, TValue>({
@@ -38,6 +39,7 @@ export function DataTableBase<TData, TValue>({
     table,
     onPageChange,
     maxBodyHeight = "80vh",
+    error,
 }: DataTableBaseProps<TData, TValue>) {
 
     return (
@@ -125,8 +127,8 @@ export function DataTableBase<TData, TValue>({
                             ))
                         ) : (
                             <TableRow className="table w-full table-fixed">
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
+                                <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
+                                    {error ? 'Error al cargar los datos' : 'No hay datos'}
                                 </TableCell>
                             </TableRow>
                         )}

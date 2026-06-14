@@ -174,19 +174,17 @@ export function DataTable<TData, TValue>({
             )}
 
             <div className="min-h-0 min-w-0 flex-1">
-                {!error && (
-                    <DataTableBase<TData, TValue>
-                        columns={allColumns}
-                        enablePagination={enablePagination}
-                        totalPages={totalPages}
-                        pageIndex={pageIndex}
-                        onPageChange={setPageIndex}
-                        isLoading={isLoading}
-                        table={table}
-                        maxBodyHeight={maxBodyHeight}
-                    />
-                )
-                }
+                <DataTableBase<TData, TValue>
+                    columns={allColumns}
+                    enablePagination={enablePagination}
+                    totalPages={totalPages}
+                    pageIndex={pageIndex}
+                    onPageChange={setPageIndex}
+                    isLoading={isLoading}
+                    table={table}
+                    maxBodyHeight={maxBodyHeight}
+                    error={error}
+                />
             </div>
         </div>
     )

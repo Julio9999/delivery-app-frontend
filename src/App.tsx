@@ -6,6 +6,7 @@ import { CreateProductPage, EditProductPage, MainPage } from './pages/products';
 import { LoginPage } from './pages/auth';
 import { MainCategoriesPage, CreateCategoryPage, EditCategoryPage } from './pages/category';
 import { MainOffersPage, CreateOfferPage, EditOfferPage } from './pages/offers';
+import { MainSalesPage, DetailSalePage } from './pages/sales';
 
 function App() {
   return (
@@ -22,6 +23,9 @@ function App() {
         <Route path="/offers" element={<MainOffersPage />} />
         <Route path="/offers/create" element={<CreateOfferPage />} />
         <Route path="/offers/:id" element={<EditOfferPage />} />
+
+        <Route path="/sales" element={<MainSalesPage />} />
+        <Route path="/sales/:id" element={<DetailSalePage />} />
 
         <Route path="/*" element={<MainPage />} />
       </Route>

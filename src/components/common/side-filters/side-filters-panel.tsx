@@ -3,6 +3,7 @@ import { FilterIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/common/date-picker/date-picker";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { SelectAsyncPaginated } from "@/components/common/select-async-paginate/select-async-paginated";
 import type { SelectAsyncPaginatedFetcher } from "@/components/common/select-async-paginate/use-select-async-paginated";
@@ -33,7 +34,14 @@ export interface SideFilterAsyncSelectDefinition extends SideFilterBase {
   clearLabel?: string;
 }
 
-export type SideFilterDefinition = SideFilterPrimitiveDefinition | SideFilterAsyncSelectDefinition;
+export interface SideFilterDateRangeDefinition extends SideFilterBase {
+  type: "date-range";
+  toKey: string;
+  placeholder?: string;
+  rangePlaceholder?: string;
+}
+
+export type SideFilterDefinition = SideFilterPrimitiveDefinition | SideFilterAsyncSelectDefinition | SideFilterDateRangeDefinition;
 
 export type SideFilterValues = Record<string, string | number | boolean>;
 
@@ -150,9 +158,22 @@ export function SideFiltersPanel({
 
   const handleApply = React.useCallback(() => {
     const appliedValues = filters.reduce<SideFilterValues>((acc, filter) => {
-      const parsedValue = parseFilterValue(filter, draftValues[filter.key]);
-      if (parsedValue !== undefined) {
-        acc[filter.key] = parsedValue;
+      if (filter.type === "date-range") {
+        const fromValue = parseFilterValue(
+          { type: "date", label: filter.label, key: filter.key } satisfies SideFilterDefinition,
+          draftValues[filter.key],
+        );
+        const toValue = parseFilterValue(
+          { type: "date", label: filter.label, key: filter.toKey } satisfies SideFilterDefinition,
+          draftValues[filter.toKey],
+        );
+        if (fromValue !== undefined) acc[filter.key] = fromValue;
+        if (toValue !== undefined) acc[filter.toKey] = toValue;
+      } else {
+        const parsedValue = parseFilterValue(filter, draftValues[filter.key]);
+        if (parsedValue !== undefined) {
+          acc[filter.key] = parsedValue;
+        }
       }
       return acc;
     }, {});
@@ -172,6 +193,10 @@ export function SideFiltersPanel({
     filters.forEach((filter) => {
       onDraftValueChange?.(filter.key, "");
       onDraftLabelChange?.(filter.key, "");
+      if (filter.type === "date-range") {
+        onDraftValueChange?.(filter.toKey, "");
+        onDraftLabelChange?.(filter.toKey, "");
+      }
     });
 
     onClear?.();
@@ -236,17 +261,42 @@ export function SideFiltersPanel({
                 <option value="false">No</option>
               </select>
               </>
+            ) : filter.type === "date-range" ? (
+              <>
+                <Label>{filter.label}</Label>
+                <DatePicker
+                  rangeValue={{
+                    from: draftValues[filter.key] || undefined,
+                    to: draftValues[filter.toKey] || undefined,
+                  }}
+                  onRangeChange={(value) => {
+                    setDraftValue(filter.key, value?.from ?? "");
+                    setDraftValue(filter.toKey, value?.to ?? "");
+                  }}
+                  rangePlaceholder={filter.rangePlaceholder ?? "Selecciona un rango de fechas"}
+                  enableRange
+                  allowClear
+                />
+              </>
+            ) : filter.type === "date" ? (
+              <>
+                <Label>{filter.label}</Label>
+                <DatePicker
+                  value={draftValues[filter.key] ?? ""}
+                  onChange={(value) => setDraftValue(filter.key, value)}
+                  placeholder={filter.label}
+                  allowClear
+                />
+              </>
             ) : (
               <>
                 <Label htmlFor={`side-filter-${filter.key}`}>{filter.label}</Label>
               <Input
                 id={`side-filter-${filter.key}`}
                 type={
-                  filter.type === "date"
-                    ? "date"
-                    : filter.type === "number"
-                      ? "number"
-                      : "text"
+                  filter.type === "number"
+                    ? "number"
+                    : "text"
                 }
                 value={draftValues[filter.key] ?? ""}
                 onChange={(event) =>
