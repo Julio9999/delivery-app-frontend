@@ -6,6 +6,12 @@ import tailwindcss from "@tailwindcss/vite";
 import pkg from "./package.json" with { type: "json" };
 
 function getGitShortSha(): string {
+  // Prefer the SHA injected by CI/CD via the GIT_SHA env var (Docker build-arg).
+  // Fall back to the local git repo (works in dev mode where .git is present).
+  // Last resort: literal "unknown".
+  const fromEnv = process.env.GIT_SHA?.trim();
+  if (fromEnv) return fromEnv;
+
   try {
     return execSync("git rev-parse --short HEAD", {
       stdio: ["ignore", "pipe", "ignore"],

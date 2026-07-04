@@ -8,7 +8,8 @@ RUN bun install --frozen-lockfile
 COPY . .
 
 ARG VITE_API_URL=__VITE_API_URL__
-RUN VITE_API_URL=$VITE_API_URL bun run build
+ARG GIT_SHA=unknown
+RUN VITE_API_URL=$VITE_API_URL GIT_SHA=$GIT_SHA bun run build
 
 FROM oven/bun:1-alpine AS runner
 
