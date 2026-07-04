@@ -117,3 +117,7 @@ Routes are mounted automatically under `/products`.
 
 Start the backend and run `npm run dev` (or `bun dev`) to test the CRUD UI.
 
+## Build info
+
+The sidebar displays a build-version badge showing `v{semver} ({short SHA}) - {ISO timestamp}`. The version comes from `package.json`, the git SHA is read from the local repo at build time via `git rev-parse --short HEAD`, and the timestamp is captured when the Vite config is evaluated. If git is unavailable during the build (e.g., in a stripped CI container), the SHA portion shows `unknown`. The constant is injected at build time, not at runtime.
+

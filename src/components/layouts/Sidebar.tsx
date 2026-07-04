@@ -2,6 +2,7 @@ import { type ComponentType, type SVGProps } from 'react';
 import { LogOutIcon, MenuIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SidebarNavItem } from './SidebarNavItem';
+import { BuildVersionBadge } from './build-version-badge';
 
 export interface SidebarItem {
   label: string;
@@ -81,6 +82,7 @@ export default function Sidebar({ items, isExpanded, currentPath, onToggle, onLo
           <LogOutIcon className="size-5" />
           {effectiveExpanded && <span>Cerrar sesión</span>}
         </button>
+        <BuildVersionBadge />
       </div>
     </aside>
   );
