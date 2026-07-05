@@ -82,8 +82,9 @@ jobs:
         if: github.event_name == 'push'
         env:
           GH_TOKEN: ${{ secrets.PAT_FOR_IMAGE_UPDATE }}
+          META_TAGS: ${{ steps.meta.outputs.tags }}
         run: |
-          TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -1 | sed 's|.*:||')
+          TAG=$(echo "$META_TAGS" | head -1 | sed 's|.*:||')
           curl -L -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer $GH_TOKEN" \
