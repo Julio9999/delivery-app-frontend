@@ -119,5 +119,7 @@ Start the backend and run `npm run dev` (or `bun dev`) to test the CRUD UI.
 
 ## Build info
 
-The sidebar displays a build-version badge showing `v{semver} ({short SHA}) - {ISO timestamp}`. The version comes from `package.json`, the git SHA is read from the local repo at build time via `git rev-parse --short HEAD`, and the timestamp is captured when the Vite config is evaluated. If git is unavailable during the build (e.g., in a stripped CI container), the SHA portion shows `unknown`. The constant is injected at build time, not at runtime.
+The sidebar displays a build-version badge showing `v{semver} ({short SHA}) - {ISO timestamp}`. The short SHA (7 chars) is shown in the badge; hover the badge to see the full 40-char SHA in a tooltip.
+
+The version comes from `package.json`, the git SHA is read from the local repo at build time via `git rev-parse --short HEAD` (or from the `GIT_SHA` Docker build-arg injected by the CI workflow), and the timestamp is captured when the Vite config is evaluated. If git is unavailable during the build (e.g., in a stripped CI container without the build-arg), the SHA portion shows `unknown`. The constant is injected at build time, not at runtime.
 
