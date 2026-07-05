@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   packages: write
@@ -13,6 +17,7 @@ permissions:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
@@ -22,6 +27,7 @@ jobs:
         with:
           images: ghcr.io/julio9999/delivery-app-panel
           tags: |
+            type=ref,event=branch
             type=sha,prefix=sha-,format=short
 
       - name: Log in to GHCR
@@ -40,6 +46,8 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Trigger image update in delivery-infra
         if: github.event_name == 'push'
