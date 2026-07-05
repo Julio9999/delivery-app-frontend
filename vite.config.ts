@@ -5,7 +5,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import pkg from "./package.json" with { type: "json" };
 
-function getGitShortSha(): string {
+function getFullSha(): string {
   // Prefer the SHA injected by CI/CD via the GIT_SHA env var (Docker build-arg).
   // Fall back to the local git repo (works in dev mode where .git is present).
   // Last resort: literal "unknown".
@@ -25,9 +25,11 @@ function getGitShortSha(): string {
 
 // https://vite.dev/config/
 export default defineConfig(() => {
-  const shortSha = getGitShortSha();
+  const fullSha = getFullSha();
+  const shortSha = fullSha === "unknown" ? "unknown" : fullSha.slice(0, 7);
   const builtAt = new Date().toISOString();
-  const appVersion = `v${pkg.version} (${shortSha}) - ${builtAt}`;
+  const shortVersion = `v${pkg.version} (${shortSha}) - ${builtAt}`;
+  const fullVersion = `v${pkg.version} (${fullSha}) - ${builtAt}`;
 
   return {
     plugins: [
@@ -44,7 +46,8 @@ export default defineConfig(() => {
       },
     },
     define: {
-      __APP_VERSION__: JSON.stringify(appVersion),
+      __APP_VERSION__: JSON.stringify(shortVersion),
+      __APP_FULL_VERSION__: JSON.stringify(fullVersion),
     },
   };
 });
