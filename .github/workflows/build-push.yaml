@@ -54,7 +54,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
         with:
-          images: ghcr.io/julio9999/delivery-app-panel
+          images: ghcr.io/julio9999/delivery-app-frontend
           tags: |
             type=ref,event=branch
             type=sha,prefix=sha-,format=short
@@ -92,4 +92,4 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer $GH_TOKEN" \
             "https://api.github.com/repos/Julio9999/delivery-infra/dispatches" \
-            -d "{\"event_type\":\"image-built\",\"client_payload\":{\"image\":\"delivery-app-panel\",\"tag\":\"$TAG\"}}"
+            -d "{\"event_type\":\"image-built\",\"client_payload\":{\"image\":\"delivery-app-frontend\",\"tag\":\"$TAG\"}}"
