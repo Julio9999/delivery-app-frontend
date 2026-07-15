@@ -23,4 +23,4 @@ RUN chmod +x /docker-entrypoint.sh
 EXPOSE 8080
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["bun", "x", "serve", "dist", "-l", "8080", "--no-clipboard"]
+CMD ["bun", "x", "serve", "dist", "-l", "8080", "--no-clipboard", "--single"]
