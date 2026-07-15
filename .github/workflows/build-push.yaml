@@ -87,7 +87,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT_FOR_IMAGE_UPDATE }}
           META_TAGS: ${{ steps.meta.outputs.tags }}
         run: |
-          TAG=$(echo "$META_TAGS" | head -1 | sed 's|.*:||')
+          TAG=$(echo "$META_TAGS" | grep "sha-" | head -1 | sed 's|.*:||')
           curl -L -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer $GH_TOKEN" \
